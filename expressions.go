@@ -70,8 +70,8 @@ func (expr weekdayExpr) IsActive(t time.Time) bool {
 }
 
 func (expr weekdayExpr) Next(t time.Time) time.Time {
-	t = t.In(expr.loc)
-	t = t.Truncate(24 * time.Hour)
+	year, month, day := t.In(expr.loc).Date()
+	t = time.Date(year, month, day, 0, 0, 0, 0, expr.loc)
 	t = expr.next(t)
 	if expr.count > 0 {
 		for weekInMonth(t) != expr.count {

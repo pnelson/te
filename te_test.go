@@ -118,6 +118,22 @@ func TestWeekday(t *testing.T) {
 			next:     time.Date(2016, 8, 2, 0, 0, 0, 0, time.UTC),
 			isActive: false,
 		},
+		"wednesday local time zone": {
+			weekday:  time.Wednesday,
+			count:    0,
+			loc:      time.Local,
+			t:        time.Date(2016, 8, 1, 0, 0, 0, 0, time.Local),
+			next:     time.Date(2016, 8, 3, 0, 0, 0, 0, time.Local),
+			isActive: false,
+		},
+		"wednesday mixed time zone": {
+			weekday:  time.Wednesday,
+			count:    0,
+			loc:      time.Local,
+			t:        time.Date(2016, 8, 1, 0, 0, 0, 0, time.UTC),
+			next:     time.Date(2016, 8, 3, 0, 0, 0, 0, time.Local),
+			isActive: false,
+		},
 		"sunday": {
 			weekday:  time.Sunday,
 			count:    0,
