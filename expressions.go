@@ -35,15 +35,13 @@ type timeExpr struct {
 }
 
 func (expr timeExpr) IsActive(t time.Time) bool {
-	t = timeOnly(t)
-	return isBetween(t, expr.from, expr.to)
+	from := timeFrom(t, expr.from)
+	to := timeFrom(t, expr.to)
+	return isBetween(t, from, to)
 }
 
 func (expr timeExpr) Next(t time.Time) time.Time {
-	loc := expr.from.Location()
-	year, month, day := t.Date()
-	hour, min, sec := expr.from.Clock()
-	next := time.Date(year, month, day, hour, min, sec, 0, loc)
+	next := timeFrom(t, expr.from)
 	if t.Equal(next) || t.After(next) {
 		next = next.AddDate(0, 0, 1)
 	}
@@ -117,14 +115,12 @@ type dateRangeExpr struct {
 }
 
 func (expr dateRangeExpr) IsActive(t time.Time) bool {
-	t = dateOnly(t)
+	t = dateFrom(t, t)
 	return isBetween(t, expr.from, expr.to)
 }
 
 func (expr dateRangeExpr) Next(t time.Time) time.Time {
-	loc := expr.from.Location()
-	_, month, day := expr.from.Date()
-	next := time.Date(t.Year(), month, day, 0, 0, 0, 0, loc)
+	next := dateFrom(t, expr.from)
 	if t.Equal(next) || t.After(next) {
 		next = next.AddDate(1, 0, 0)
 	}
@@ -230,16 +226,17 @@ func (ds byDuration) Len() int           { return len(ds) }
 func (ds byDuration) Less(i, j int) bool { return ds[i] < ds[j] }
 func (ds byDuration) Swap(i, j int)      { ds[i], ds[j] = ds[j], ds[i] }
 
-func dateOnly(t time.Time) time.Time {
-	loc := t.Location()
-	_, month, day := t.Date()
-	return time.Date(1, month, day, 0, 0, 0, 0, loc)
+func dateFrom(t, date time.Time) time.Time {
+	loc := date.Location()
+	_, month, day := date.Date()
+	return time.Date(t.Year(), month, day, 0, 0, 0, 0, loc)
 }
 
-func timeOnly(t time.Time) time.Time {
-	loc := t.Location()
-	hour, min, sec := t.Clock()
-	return time.Date(1, 1, 1, hour, min, sec, 0, loc)
+func timeFrom(date, clock time.Time) time.Time {
+	loc := clock.Location()
+	year, month, day := date.Date()
+	hour, min, _ := clock.Clock()
+	return time.Date(year, month, day, hour, min, 0, 0, loc)
 }
 
 func isBetween(t, from, to time.Time) bool {

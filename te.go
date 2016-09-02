@@ -11,7 +11,6 @@ func Day(n int, loc *time.Location) Expression {
 // Time returns a temporal expression for a time range.
 // Only the time and location are considered.
 func Time(from time.Time, d time.Duration) Expression {
-	from = timeOnly(from)
 	return timeExpr{from, from.Add(d)}
 }
 
@@ -31,7 +30,7 @@ func Month(m time.Month, loc *time.Location) Expression {
 // DateRange returns a temporal expression for a date range.
 // Only the month, day and location are considered.
 func DateRange(from, to time.Time) Expression {
-	return dateRangeExpr{dateOnly(from), dateOnly(to)}
+	return dateRangeExpr{from, to}
 }
 
 // Union returns a temporal expression that represents the union
