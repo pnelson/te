@@ -175,7 +175,7 @@ func (expr intersectExpr) Next(t time.Time) time.Time {
 		ds[i] = next.Sub(t)
 	}
 	sort.Sort(sort.Reverse(byDuration(ds)))
-	// Enumerate subsets of candidate intersecton times.
+	// Enumerate candidate intersection times by applying duration subsets.
 	ts = []time.Time{t}
 	for _, d := range ds[1:] {
 		ss := make([]time.Time, len(ts))
