@@ -334,20 +334,20 @@ func TestUnion(t *testing.T) {
 }
 
 func TestIntersection(t *testing.T) {
-	now := time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC)
-	expr := Intersect(Month(time.January, time.UTC), Day(4, time.UTC))
+	now := time.Date(2015, 8, 1, 0, 0, 0, 0, time.UTC)
+	expr := Intersect(Month(time.January, time.UTC), Day(4, time.UTC), Time(time.Date(1, 1, 1, 9, 0, 0, 0, time.UTC), time.Hour))
 	if expr.IsActive(now) {
 		t.Errorf("should not be active")
 	}
 	next := expr.Next(now)
-	want := time.Date(2016, 1, 4, 0, 0, 0, 0, time.UTC)
+	want := time.Date(2016, 1, 4, 9, 0, 0, 0, time.UTC)
 	if !next.Equal(want) {
-		t.Errorf("have %v\nwant %v", next, want)
+		t.Errorf("next 1\nhave %v\nwant %v", next, want)
 	}
 	next = expr.Next(want)
-	want = time.Date(2017, 1, 4, 0, 0, 0, 0, time.UTC)
+	want = time.Date(2017, 1, 4, 9, 0, 0, 0, time.UTC)
 	if !next.Equal(want) {
-		t.Errorf("have %v\nwant %v", next, want)
+		t.Errorf("next 2\nhave %v\nwant %v", next, want)
 	}
 	if !expr.IsActive(want) {
 		t.Errorf("should be active")
