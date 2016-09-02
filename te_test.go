@@ -381,3 +381,21 @@ func TestExcept(t *testing.T) {
 		}
 	}
 }
+
+func TestUntil(t *testing.T) {
+	tests := []struct {
+		expr Expression
+		d    time.Duration
+	}{
+		{Day(4, time.UTC), 3 * 24 * time.Hour},
+		{Weekday(time.Thursday, 0, time.UTC), 3 * 24 * time.Hour},
+		{Month(time.September, time.UTC), 31 * 24 * time.Hour},
+	}
+	now := time.Date(2016, time.August, 1, 0, 0, 0, 0, time.UTC)
+	for i, tt := range tests {
+		d := Until(tt.expr, now)
+		if d != tt.d {
+			t.Errorf("Until %d.\nhave %v\nwant %v", i, d, tt.d)
+		}
+	}
+}
