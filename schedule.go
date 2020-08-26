@@ -16,9 +16,9 @@ type Event struct {
 // Schedule represents a set of named temporal expressions
 // that emit recurring calendar events.
 type Schedule struct {
-	Events chan Event
 	mu     sync.RWMutex
 	exprs  map[string]Expression
+	events chan Event
 	quit   map[string]chan struct{}
 	done   chan struct{}
 }
@@ -27,8 +27,8 @@ type Schedule struct {
 // recurring events on its channel.
 func NewSchedule() *Schedule {
 	return &Schedule{
-		Events: make(chan Event),
 		exprs:  make(map[string]Expression),
+		events: make(chan Event),
 		quit:   make(map[string]chan struct{}),
 		done:   make(chan struct{}),
 	}
@@ -75,7 +75,7 @@ func (s *Schedule) watch(name string, expr Expression, quit chan struct{}) {
 		}
 		select {
 		case <-time.After(d):
-			s.Events <- Event{Name: name, Time: t, Expr: expr}
+			s.events <- Event{Name: name, Time: t, Expr: expr}
 		case <-quit:
 			return
 		}
@@ -99,6 +99,10 @@ func (s *Schedule) del(name string) {
 	delete(s.quit, name)
 }
 
+func (s *Schedule) Events() <-chan Event {
+	return s.events
+}
+
 // Close stops all watchers and renders the schedule incapable
 // of emitting further events.
 //
@@ -112,13 +116,13 @@ func (s *Schedule) Close() error {
 	for name := range s.quit {
 		s.del(name)
 	}
-	close(s.Events)
+	close(s.events)
 	return nil
 }
 
 func (s *Schedule) isClosed() bool {
 	select {
-	case <-s.Events:
+	case <-s.events:
 		return true
 	default:
 		return false

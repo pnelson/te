@@ -27,7 +27,7 @@ func main() {
 	go func() {
 		for {
 			select {
-			case e := <-s.Events:
+			case e := <-s.Events():
 				fmt.Printf("%v (%s)\n", e.Time, e.Name)
 			case <-quit:
 				done <- struct{}{}
