@@ -12,12 +12,12 @@ import (
 )
 
 func main() {
-	hours := te.Time(time.Date(1, 1, 1, 6, 0, 0, 0, time.Local), time.Hour)
+	hours := te.Hour(6)
 	weekdays := te.Union(
-		te.Weekday(time.Monday, 0, time.Local),
-		te.Weekday(time.Wednesday, 0, time.Local),
-		te.Weekday(time.Friday, 0, time.Local),
-		te.Weekday(time.Saturday, 0, time.Local),
+		te.Weekday(time.Monday, 0),
+		te.Weekday(time.Wednesday, 0),
+		te.Weekday(time.Friday, 0),
+		te.Weekday(time.Saturday, 0),
 	)
 	s := te.NewSchedule()
 	s.Set("fitness", te.Intersect(weekdays, hours))
