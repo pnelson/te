@@ -11,18 +11,15 @@ type Expression interface {
 	Next(t time.Time) time.Time
 }
 
-type dayExpr struct {
-	day int
-	loc *time.Location
-}
+type dayExpr int
 
 func (expr dayExpr) IsActive(t time.Time) bool {
-	return t.In(expr.loc).Day() == expr.day
+	return t.Day() == int(expr)
 }
 
 func (expr dayExpr) Next(t time.Time) time.Time {
-	t = t.In(expr.loc)
-	next := time.Date(t.Year(), t.Month(), expr.day, 0, 0, 0, 0, expr.loc)
+	loc := t.Location()
+	next := time.Date(t.Year(), t.Month(), int(expr), 0, 0, 0, 0, loc)
 	if t.Equal(next) || t.After(next) {
 		next = next.AddDate(0, 1, 0)
 	}
@@ -51,11 +48,9 @@ func (expr timeExpr) Next(t time.Time) time.Time {
 type weekdayExpr struct {
 	weekday time.Weekday
 	count   int
-	loc     *time.Location
 }
 
 func (expr weekdayExpr) IsActive(t time.Time) bool {
-	t = t.In(expr.loc)
 	if t.Weekday() != expr.weekday {
 		return false
 	}
@@ -68,8 +63,9 @@ func (expr weekdayExpr) IsActive(t time.Time) bool {
 }
 
 func (expr weekdayExpr) Next(t time.Time) time.Time {
-	year, month, day := t.In(expr.loc).Date()
-	t = time.Date(year, month, day, 0, 0, 0, 0, expr.loc)
+	loc := t.Location()
+	year, month, day := t.Date()
+	t = time.Date(year, month, day, 0, 0, 0, 0, loc)
 	t = expr.next(t)
 	if expr.count > 0 {
 		for weekInMonth(t) != expr.count {
@@ -91,18 +87,15 @@ func (expr weekdayExpr) next(t time.Time) time.Time {
 	return t.AddDate(0, 0, days)
 }
 
-type monthExpr struct {
-	month time.Month
-	loc   *time.Location
-}
+type monthExpr time.Month
 
 func (expr monthExpr) IsActive(t time.Time) bool {
-	return t.In(expr.loc).Month() == expr.month
+	return t.Month() == time.Month(expr)
 }
 
 func (expr monthExpr) Next(t time.Time) time.Time {
-	t = t.In(expr.loc)
-	next := time.Date(t.Year(), expr.month, t.Day(), 0, 0, 0, 0, expr.loc)
+	loc := t.Location()
+	next := time.Date(t.Year(), time.Month(expr), t.Day(), 0, 0, 0, 0, loc)
 	if t.Equal(next) || t.After(next) {
 		next = next.AddDate(1, 0, 0)
 	}

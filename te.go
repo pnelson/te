@@ -4,8 +4,8 @@ package te
 import "time"
 
 // Day returns a temporal expression for a day of the month.
-func Day(n int, loc *time.Location) Expression {
-	return dayExpr{n, loc}
+func Day(n int) Expression {
+	return dayExpr(n)
 }
 
 // Time returns a temporal expression for a time range.
@@ -18,13 +18,13 @@ func Time(from time.Time, d time.Duration) Expression {
 // If n is zero, the expression represents every given weekday.
 // If n is positive, the expression represents the nth given weekday.
 // If n is negative, the expression represents the nth last given weekday.
-func Weekday(w time.Weekday, n int, loc *time.Location) Expression {
-	return weekdayExpr{w, n, loc}
+func Weekday(w time.Weekday, n int) Expression {
+	return weekdayExpr{w, n}
 }
 
 // Month returns a temporal expression for months of the year.
-func Month(m time.Month, loc *time.Location) Expression {
-	return monthExpr{m, loc}
+func Month(m time.Month) Expression {
+	return monthExpr(m)
 }
 
 // DateRange returns a temporal expression for a date range.
