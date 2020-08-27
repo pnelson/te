@@ -201,50 +201,6 @@ func TestDay(t *testing.T) {
 	}
 }
 
-func TestTime(t *testing.T) {
-	tests := map[string]struct {
-		t1       time.Time
-		t2       time.Time
-		t        time.Time
-		next     time.Time
-		isActive bool
-	}{
-		"equal": {
-			t1:       time.Date(1, 1, 1, 6, 0, 0, 0, time.UTC),
-			t2:       time.Date(1, 1, 1, 7, 0, 0, 0, time.UTC),
-			t:        time.Date(2016, 1, 1, 6, 0, 0, 0, time.UTC),
-			next:     time.Date(2016, 1, 2, 6, 0, 0, 0, time.UTC),
-			isActive: true,
-		},
-		"before": {
-			t1:       time.Date(1, 1, 1, 6, 0, 0, 0, time.UTC),
-			t2:       time.Date(1, 1, 1, 7, 0, 0, 0, time.UTC),
-			t:        time.Date(2016, 1, 1, 4, 0, 0, 0, time.UTC),
-			next:     time.Date(2016, 1, 1, 6, 0, 0, 0, time.UTC),
-			isActive: false,
-		},
-		"after": {
-			t1:       time.Date(1, 1, 1, 6, 0, 0, 0, time.UTC),
-			t2:       time.Date(1, 1, 1, 7, 0, 0, 0, time.UTC),
-			t:        time.Date(2016, 1, 1, 8, 0, 0, 0, time.UTC),
-			next:     time.Date(2016, 1, 2, 6, 0, 0, 0, time.UTC),
-			isActive: false,
-		},
-	}
-	for name, tt := range tests {
-		expr := TimeRange(tt.t1, tt.t2)
-		isActive := expr.IsActive(tt.t)
-		if tt.isActive != isActive {
-			t.Errorf("%s\nhave isActive %v\nwant isActive %v", name, isActive, tt.isActive)
-			continue
-		}
-		next := expr.Next(tt.t)
-		if !next.Equal(tt.next) {
-			t.Errorf("%s\nhave next %v\nwant next %v", name, next, tt.next)
-		}
-	}
-}
-
 func TestWeekday(t *testing.T) {
 	tests := map[string]struct {
 		weekday  time.Weekday
@@ -424,6 +380,50 @@ func TestDateRange(t *testing.T) {
 	}
 	for name, tt := range tests {
 		expr := DateRange(tt.t1, tt.t2)
+		isActive := expr.IsActive(tt.t)
+		if tt.isActive != isActive {
+			t.Errorf("%s\nhave isActive %v\nwant isActive %v", name, isActive, tt.isActive)
+			continue
+		}
+		next := expr.Next(tt.t)
+		if !next.Equal(tt.next) {
+			t.Errorf("%s\nhave next %v\nwant next %v", name, next, tt.next)
+		}
+	}
+}
+
+func TestTimeRange(t *testing.T) {
+	tests := map[string]struct {
+		t1       time.Time
+		t2       time.Time
+		t        time.Time
+		next     time.Time
+		isActive bool
+	}{
+		"equal": {
+			t1:       time.Date(1, 1, 1, 6, 0, 0, 0, time.UTC),
+			t2:       time.Date(1, 1, 1, 7, 0, 0, 0, time.UTC),
+			t:        time.Date(2016, 1, 1, 6, 0, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 2, 6, 0, 0, 0, time.UTC),
+			isActive: true,
+		},
+		"before": {
+			t1:       time.Date(1, 1, 1, 6, 0, 0, 0, time.UTC),
+			t2:       time.Date(1, 1, 1, 7, 0, 0, 0, time.UTC),
+			t:        time.Date(2016, 1, 1, 4, 0, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 6, 0, 0, 0, time.UTC),
+			isActive: false,
+		},
+		"after": {
+			t1:       time.Date(1, 1, 1, 6, 0, 0, 0, time.UTC),
+			t2:       time.Date(1, 1, 1, 7, 0, 0, 0, time.UTC),
+			t:        time.Date(2016, 1, 1, 8, 0, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 2, 6, 0, 0, 0, time.UTC),
+			isActive: false,
+		},
+	}
+	for name, tt := range tests {
+		expr := TimeRange(tt.t1, tt.t2)
 		isActive := expr.IsActive(tt.t)
 		if tt.isActive != isActive {
 			t.Errorf("%s\nhave isActive %v\nwant isActive %v", name, isActive, tt.isActive)
