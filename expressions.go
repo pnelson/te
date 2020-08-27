@@ -133,6 +133,16 @@ func (expr monthExpr) Next(t time.Time) time.Time {
 	return next
 }
 
+type yearExpr int
+
+func (expr yearExpr) IsActive(t time.Time) bool {
+	return t.Year() == int(expr)
+}
+
+func (expr yearExpr) Next(t time.Time) time.Time {
+	return time.Time{}
+}
+
 type dateRangeExpr struct {
 	t1 time.Time
 	t2 time.Time

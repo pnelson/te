@@ -48,6 +48,11 @@ func Month(month time.Month) Expression {
 	return monthExpr(month)
 }
 
+// Year returns a temporal expression for the given year.
+func Year(year int) Expression {
+	return yearExpr(year)
+}
+
 // Date returns a temporal expression for a date.
 func Date(month time.Month, day int) Expression {
 	me := Month(month)

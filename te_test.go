@@ -348,6 +348,38 @@ func TestMonth(t *testing.T) {
 	}
 }
 
+func TestYear(t *testing.T) {
+	tests := map[string]struct {
+		t        time.Time
+		isActive bool
+	}{
+		"equal": {
+			t:        time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
+			isActive: true,
+		},
+		"before": {
+			t:        time.Date(2015, 1, 1, 0, 0, 0, 0, time.UTC),
+			isActive: false,
+		},
+		"after": {
+			t:        time.Date(2017, 1, 1, 0, 0, 0, 0, time.UTC),
+			isActive: false,
+		},
+	}
+	expr := Year(2016)
+	for name, tt := range tests {
+		isActive := expr.IsActive(tt.t)
+		if tt.isActive != isActive {
+			t.Errorf("%s\nhave isActive %v\nwant isActive %v", name, isActive, tt.isActive)
+			continue
+		}
+		next := expr.Next(tt.t)
+		if !next.IsZero() {
+			t.Errorf("%s\nhave next %v\nwant next %v", name, next, time.Time{})
+		}
+	}
+}
+
 func TestDate(t *testing.T) {
 	tests := map[string]struct {
 		t    time.Time
