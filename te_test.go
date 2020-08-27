@@ -398,8 +398,8 @@ func TestDate(t *testing.T) {
 			next: time.Date(2017, 2, 1, 0, 0, 0, 0, time.UTC),
 		},
 	}
+	expr := Date(time.February, 1)
 	for name, tt := range tests {
-		expr := Date(time.February, 1)
 		next := expr.Next(tt.t)
 		if !next.Equal(tt.next) {
 			t.Errorf("%s\nhave next %v\nwant next %v", name, next, tt.next)
@@ -425,8 +425,8 @@ func TestTime(t *testing.T) {
 			next: time.Date(2016, 2, 2, 15, 04, 05, 0, time.UTC),
 		},
 	}
+	expr := Time(15, 04, 05)
 	for name, tt := range tests {
-		expr := Time(15, 04, 05)
 		next := expr.Next(tt.t)
 		if !next.Equal(tt.next) {
 			t.Errorf("%s\nhave next %v\nwant next %v", name, next, tt.next)
