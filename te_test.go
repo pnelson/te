@@ -323,7 +323,7 @@ func TestMonth(t *testing.T) {
 		},
 		"before": {
 			month:    time.March,
-			t:        time.Date(2016, 2, 1, 0, 0, 0, 0, time.UTC),
+			t:        time.Date(2016, 2, 2, 0, 0, 0, 0, time.UTC),
 			next:     time.Date(2016, 3, 1, 0, 0, 0, 0, time.UTC),
 			isActive: false,
 		},

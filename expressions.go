@@ -126,7 +126,7 @@ func (expr monthExpr) IsActive(t time.Time) bool {
 
 func (expr monthExpr) Next(t time.Time) time.Time {
 	loc := t.Location()
-	next := time.Date(t.Year(), time.Month(expr), t.Day(), 0, 0, 0, 0, loc)
+	next := time.Date(t.Year(), time.Month(expr), 1, 0, 0, 0, 0, loc)
 	if t.Equal(next) || t.After(next) {
 		next = next.AddDate(1, 0, 0)
 	}
