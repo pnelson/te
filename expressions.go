@@ -77,18 +77,18 @@ func (expr dayExpr) Next(t time.Time) time.Time {
 }
 
 type weekdayExpr struct {
-	weekday time.Weekday
-	count   int
+	d time.Weekday
+	n int
 }
 
 func (expr weekdayExpr) IsActive(t time.Time) bool {
-	if t.Weekday() != expr.weekday {
+	if t.Weekday() != expr.d {
 		return false
 	}
-	if expr.count > 0 {
-		return weekInMonth(t) == expr.count
-	} else if expr.count < 0 {
-		return weekInMonthFromEnd(t) == -expr.count
+	if expr.n > 0 {
+		return weekInMonth(t) == expr.n
+	} else if expr.n < 0 {
+		return weekInMonthFromEnd(t) == -expr.n
 	}
 	return true
 }
@@ -98,12 +98,12 @@ func (expr weekdayExpr) Next(t time.Time) time.Time {
 	year, month, day := t.Date()
 	t = time.Date(year, month, day, 0, 0, 0, 0, loc)
 	t = expr.next(t)
-	if expr.count > 0 {
-		for weekInMonth(t) != expr.count {
+	if expr.n > 0 {
+		for weekInMonth(t) != expr.n {
 			t = expr.next(t)
 		}
-	} else if expr.count < 0 {
-		for weekInMonthFromEnd(t) != -expr.count {
+	} else if expr.n < 0 {
+		for weekInMonthFromEnd(t) != -expr.n {
 			t = expr.next(t)
 		}
 	}
@@ -111,7 +111,7 @@ func (expr weekdayExpr) Next(t time.Time) time.Time {
 }
 
 func (expr weekdayExpr) next(t time.Time) time.Time {
-	days := int(expr.weekday - t.Weekday())
+	days := int(expr.d - t.Weekday())
 	if days <= 0 {
 		days += 7
 	}

@@ -203,99 +203,99 @@ func TestDay(t *testing.T) {
 
 func TestWeekday(t *testing.T) {
 	tests := map[string]struct {
-		weekday  time.Weekday
-		count    int
+		d        time.Weekday
+		n        int
 		t        time.Time
 		next     time.Time
 		isActive bool
 	}{
 		"monday": {
-			weekday:  time.Monday,
-			count:    0,
+			d:        time.Monday,
+			n:        0,
 			t:        time.Date(2016, 8, 1, 0, 0, 0, 0, time.UTC),
 			next:     time.Date(2016, 8, 8, 0, 0, 0, 0, time.UTC),
 			isActive: true,
 		},
 		"tuesday": {
-			weekday:  time.Tuesday,
-			count:    0,
+			d:        time.Tuesday,
+			n:        0,
 			t:        time.Date(2016, 8, 1, 0, 0, 0, 0, time.UTC),
 			next:     time.Date(2016, 8, 2, 0, 0, 0, 0, time.UTC),
 			isActive: false,
 		},
 		"wednesday local time zone": {
-			weekday:  time.Wednesday,
-			count:    0,
+			d:        time.Wednesday,
+			n:        0,
 			t:        time.Date(2016, 8, 1, 0, 0, 0, 0, time.Local),
 			next:     time.Date(2016, 8, 3, 0, 0, 0, 0, time.Local),
 			isActive: false,
 		},
 		"sunday": {
-			weekday:  time.Sunday,
-			count:    0,
+			d:        time.Sunday,
+			n:        0,
 			t:        time.Date(2016, 8, 1, 0, 0, 0, 0, time.UTC),
 			next:     time.Date(2016, 8, 7, 0, 0, 0, 0, time.UTC),
 			isActive: false,
 		},
 		"first monday active": {
-			weekday:  time.Monday,
-			count:    1,
+			d:        time.Monday,
+			n:        1,
 			t:        time.Date(2016, 8, 1, 0, 0, 0, 0, time.UTC),
 			next:     time.Date(2016, 9, 5, 0, 0, 0, 0, time.UTC),
 			isActive: true,
 		},
 		"first friday upcoming this week": {
-			weekday:  time.Friday,
-			count:    1,
+			d:        time.Friday,
+			n:        1,
 			t:        time.Date(2016, 8, 1, 0, 0, 0, 0, time.UTC),
 			next:     time.Date(2016, 8, 5, 0, 0, 0, 0, time.UTC),
 			isActive: false,
 		},
 		"first sunday upcoming next week": {
-			weekday:  time.Sunday,
-			count:    1,
+			d:        time.Sunday,
+			n:        1,
 			t:        time.Date(2016, 8, 1, 0, 0, 0, 0, time.UTC),
 			next:     time.Date(2016, 8, 7, 0, 0, 0, 0, time.UTC),
 			isActive: false,
 		},
 		"first sunday already passed": {
-			weekday:  time.Sunday,
-			count:    1,
+			d:        time.Sunday,
+			n:        1,
 			t:        time.Date(2016, 8, 8, 0, 0, 0, 0, time.UTC),
 			next:     time.Date(2016, 9, 4, 0, 0, 0, 0, time.UTC),
 			isActive: false,
 		},
 		"second sunday upcoming": {
-			weekday:  time.Sunday,
-			count:    2,
+			d:        time.Sunday,
+			n:        2,
 			t:        time.Date(2016, 8, 1, 0, 0, 0, 0, time.UTC),
 			next:     time.Date(2016, 8, 14, 0, 0, 0, 0, time.UTC),
 			isActive: false,
 		},
 		"last sunday upcoming": {
-			weekday:  time.Sunday,
-			count:    -1,
+			d:        time.Sunday,
+			n:        -1,
 			t:        time.Date(2016, 8, 1, 0, 0, 0, 0, time.UTC),
 			next:     time.Date(2016, 8, 28, 0, 0, 0, 0, time.UTC),
 			isActive: false,
 		},
 		"last sunday active": {
-			weekday:  time.Sunday,
-			count:    -1,
+			d:        time.Sunday,
+			n:        -1,
 			t:        time.Date(2016, 8, 28, 0, 0, 0, 0, time.UTC),
 			next:     time.Date(2016, 9, 25, 0, 0, 0, 0, time.UTC),
 			isActive: true,
 		},
 		"last sunday already passed": {
-			weekday:  time.Sunday,
-			count:    -1,
+			d:        time.Sunday,
+			n:        -1,
 			t:        time.Date(2016, 8, 29, 0, 0, 0, 0, time.UTC),
 			next:     time.Date(2016, 9, 25, 0, 0, 0, 0, time.UTC),
 			isActive: false,
 		},
 	}
 	for name, tt := range tests {
-		expr := Weekday(tt.weekday, tt.count)
+		expr := Weekday(tt.d, tt.n)
 		isActive := expr.IsActive(tt.t)
 		if tt.isActive != isActive {
 			t.Errorf("%s\nhave isActive %v\nwant isActive %v", name, isActive, tt.isActive)
