@@ -165,6 +165,13 @@ func (expr intersectExpr) Next(t time.Time) time.Time {
 		next := e.Next(t)
 		ts[i] = next
 	}
+	// Return the earliest active intersection time if applicable.
+	sort.Sort(byTime(ts))
+	for _, t := range ts {
+		if expr.IsActive(t) {
+			return t
+		}
+	}
 	sort.Sort(sort.Reverse(byTime(ts)))
 	// Choose the latest time to be the earliest possible intersection.
 	t = ts[0]

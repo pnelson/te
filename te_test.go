@@ -333,7 +333,7 @@ func TestUnion(t *testing.T) {
 	}
 }
 
-func TestIntersection(t *testing.T) {
+func TestIntersect(t *testing.T) {
 	now := time.Date(2015, 8, 1, 0, 0, 0, 0, time.UTC)
 	expr := Intersect(Month(time.January, time.UTC), Day(4, time.UTC), Time(time.Date(1, 1, 1, 9, 0, 0, 0, time.UTC), time.Hour))
 	if expr.IsActive(now) {
