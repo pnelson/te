@@ -26,25 +26,6 @@ func (expr dayExpr) Next(t time.Time) time.Time {
 	return next
 }
 
-type timeExpr struct {
-	from time.Time
-	to   time.Time
-}
-
-func (expr timeExpr) IsActive(t time.Time) bool {
-	from := timeFrom(t, expr.from)
-	to := timeFrom(t, expr.to)
-	return isBetween(t, from, to)
-}
-
-func (expr timeExpr) Next(t time.Time) time.Time {
-	next := timeFrom(t, expr.from)
-	if t.Equal(next) || t.After(next) {
-		next = next.AddDate(0, 0, 1)
-	}
-	return next
-}
-
 type weekdayExpr struct {
 	weekday time.Weekday
 	count   int
@@ -103,19 +84,38 @@ func (expr monthExpr) Next(t time.Time) time.Time {
 }
 
 type dateRangeExpr struct {
-	from time.Time
-	to   time.Time
+	t1 time.Time
+	t2 time.Time
 }
 
 func (expr dateRangeExpr) IsActive(t time.Time) bool {
 	t = dateFrom(t, t)
-	return isBetween(t, expr.from, expr.to)
+	return isBetween(t, expr.t1, expr.t2)
 }
 
 func (expr dateRangeExpr) Next(t time.Time) time.Time {
-	next := dateFrom(t, expr.from)
+	next := dateFrom(t, expr.t1)
 	if t.Equal(next) || t.After(next) {
 		next = next.AddDate(1, 0, 0)
+	}
+	return next
+}
+
+type timeRangeExpr struct {
+	t1 time.Time
+	t2 time.Time
+}
+
+func (expr timeRangeExpr) IsActive(t time.Time) bool {
+	t1 := timeFrom(t, expr.t1)
+	t2 := timeFrom(t, expr.t2)
+	return isBetween(t, t1, t2)
+}
+
+func (expr timeRangeExpr) Next(t time.Time) time.Time {
+	next := timeFrom(t, expr.t1)
+	if t.Equal(next) || t.After(next) {
+		next = next.AddDate(0, 0, 1)
 	}
 	return next
 }
@@ -235,8 +235,8 @@ func dateFrom(t, date time.Time) time.Time {
 func timeFrom(date, clock time.Time) time.Time {
 	loc := clock.Location()
 	year, month, day := date.Date()
-	hour, min, _ := clock.Clock()
-	return time.Date(year, month, day, hour, min, 0, 0, loc)
+	hour, min, sec := clock.Clock()
+	return time.Date(year, month, day, hour, min, sec, 0, loc)
 }
 
 func isBetween(t, from, to time.Time) bool {

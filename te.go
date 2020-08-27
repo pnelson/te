@@ -8,12 +8,6 @@ func Day(n int) Expression {
 	return dayExpr(n)
 }
 
-// Time returns a temporal expression for a time range.
-// Only the time and location are considered.
-func Time(from time.Time, d time.Duration) Expression {
-	return timeExpr{from, from.Add(d)}
-}
-
 // Weekday returns a temporal expression for weekdays.
 // If n is zero, the expression represents every given weekday.
 // If n is positive, the expression represents the nth given weekday.
@@ -29,8 +23,14 @@ func Month(m time.Month) Expression {
 
 // DateRange returns a temporal expression for a date range.
 // Only the month, day and location are considered.
-func DateRange(from, to time.Time) Expression {
-	return dateRangeExpr{from, to}
+func DateRange(t1, t2 time.Time) Expression {
+	return dateRangeExpr{t1, t2}
+}
+
+// TimeRange returns a temporal expression for a time range.
+// Only the time and location are considered.
+func TimeRange(t1, t2 time.Time) Expression {
+	return timeRangeExpr{t1, t2}
 }
 
 // Union returns a temporal expression that represents the union
