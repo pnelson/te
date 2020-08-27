@@ -5,6 +5,162 @@ import (
 	"time"
 )
 
+func TestHour(t *testing.T) {
+	tests := map[string]struct {
+		hour     int
+		t        time.Time
+		next     time.Time
+		isActive bool
+	}{
+		"equal": {
+			hour:     4,
+			t:        time.Date(2016, 1, 1, 4, 0, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 2, 4, 0, 0, 0, time.UTC),
+			isActive: true,
+		},
+		"before": {
+			hour:     4,
+			t:        time.Date(2016, 1, 1, 3, 0, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 4, 0, 0, 0, time.UTC),
+			isActive: false,
+		},
+		"after": {
+			hour:     4,
+			t:        time.Date(2016, 1, 1, 5, 0, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 2, 4, 0, 0, 0, time.UTC),
+			isActive: false,
+		},
+		"hour negative": {
+			hour:     -1,
+			t:        time.Date(2016, 1, 1, 4, 0, 0, 0, time.UTC),
+			next:     time.Time{},
+			isActive: false,
+		},
+		"hour greater than 23": {
+			hour:     36,
+			t:        time.Date(2016, 1, 1, 4, 0, 0, 0, time.UTC),
+			next:     time.Time{},
+			isActive: false,
+		},
+	}
+	for name, tt := range tests {
+		expr := Hour(tt.hour)
+		isActive := expr.IsActive(tt.t)
+		if tt.isActive != isActive {
+			t.Errorf("%s\nhave isActive %v\nwant isActive %v", name, isActive, tt.isActive)
+			continue
+		}
+		next := expr.Next(tt.t)
+		if !next.Equal(tt.next) {
+			t.Errorf("%s\nhave next %v\nwant next %v", name, next, tt.next)
+		}
+	}
+}
+
+func TestMinute(t *testing.T) {
+	tests := map[string]struct {
+		min      int
+		t        time.Time
+		next     time.Time
+		isActive bool
+	}{
+		"equal": {
+			min:      4,
+			t:        time.Date(2016, 1, 1, 0, 4, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 1, 4, 0, 0, time.UTC),
+			isActive: true,
+		},
+		"before": {
+			min:      4,
+			t:        time.Date(2016, 1, 1, 0, 3, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 0, 4, 0, 0, time.UTC),
+			isActive: false,
+		},
+		"after": {
+			min:      4,
+			t:        time.Date(2016, 1, 1, 0, 5, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 1, 4, 0, 0, time.UTC),
+			isActive: false,
+		},
+		"min negative": {
+			min:      -1,
+			t:        time.Date(2016, 1, 1, 0, 4, 0, 0, time.UTC),
+			next:     time.Time{},
+			isActive: false,
+		},
+		"min greater than 59": {
+			min:      60,
+			t:        time.Date(2016, 1, 1, 0, 4, 0, 0, time.UTC),
+			next:     time.Time{},
+			isActive: false,
+		},
+	}
+	for name, tt := range tests {
+		expr := Minute(tt.min)
+		isActive := expr.IsActive(tt.t)
+		if tt.isActive != isActive {
+			t.Errorf("%s\nhave isActive %v\nwant isActive %v", name, isActive, tt.isActive)
+			continue
+		}
+		next := expr.Next(tt.t)
+		if !next.Equal(tt.next) {
+			t.Errorf("%s\nhave next %v\nwant next %v", name, next, tt.next)
+		}
+	}
+}
+
+func TestSecond(t *testing.T) {
+	tests := map[string]struct {
+		sec      int
+		t        time.Time
+		next     time.Time
+		isActive bool
+	}{
+		"equal": {
+			sec:      4,
+			t:        time.Date(2016, 1, 1, 0, 0, 4, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 0, 1, 4, 0, time.UTC),
+			isActive: true,
+		},
+		"before": {
+			sec:      4,
+			t:        time.Date(2016, 1, 1, 0, 0, 3, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 0, 0, 4, 0, time.UTC),
+			isActive: false,
+		},
+		"after": {
+			sec:      4,
+			t:        time.Date(2016, 1, 1, 0, 0, 5, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 0, 1, 4, 0, time.UTC),
+			isActive: false,
+		},
+		"sec negative": {
+			sec:      -1,
+			t:        time.Date(2016, 1, 1, 0, 0, 4, 0, time.UTC),
+			next:     time.Time{},
+			isActive: false,
+		},
+		"sec greater than 59": {
+			sec:      60,
+			t:        time.Date(2016, 1, 1, 0, 0, 4, 0, time.UTC),
+			next:     time.Time{},
+			isActive: false,
+		},
+	}
+	for name, tt := range tests {
+		expr := Second(tt.sec)
+		isActive := expr.IsActive(tt.t)
+		if tt.isActive != isActive {
+			t.Errorf("%s\nhave isActive %v\nwant isActive %v", name, isActive, tt.isActive)
+			continue
+		}
+		next := expr.Next(tt.t)
+		if !next.Equal(tt.next) {
+			t.Errorf("%s\nhave next %v\nwant next %v", name, next, tt.next)
+		}
+	}
+}
+
 func TestDay(t *testing.T) {
 	tests := map[string]struct {
 		day      int
@@ -305,10 +461,8 @@ func TestUnion(t *testing.T) {
 }
 
 func TestIntersect(t *testing.T) {
-	t1 := time.Date(1, 1, 1, 9, 0, 0, 0, time.UTC)
-	t2 := time.Date(1, 1, 1, 10, 0, 0, 0, time.UTC)
 	now := time.Date(2015, 8, 1, 0, 0, 0, 0, time.UTC)
-	expr := Intersect(Month(time.January), Day(4), TimeRange(t1, t2))
+	expr := Intersect(Month(time.January), Day(4), Hour(9))
 	if expr.IsActive(now) {
 		t.Errorf("should not be active")
 	}

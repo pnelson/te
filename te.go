@@ -3,6 +3,33 @@ package te
 
 import "time"
 
+// Hour returns a temporal expression for an hour.
+// If hour is negative or greater than 23, the nil expression is returned.
+func Hour(hour int) Expression {
+	if hour < 0 || hour > 23 {
+		return nilExpr{}
+	}
+	return hourExpr(hour)
+}
+
+// Minute returns a temporal expression for a minute.
+// If min is negative or greater than 59, the nil expression is returned.
+func Minute(min int) Expression {
+	if min < 0 || min > 59 {
+		return nilExpr{}
+	}
+	return minuteExpr(min)
+}
+
+// Second returns a temporal expression for a second.
+// If sec is negative or greater than 59, the nil expression is returned.
+func Second(sec int) Expression {
+	if sec < 0 || sec > 59 {
+		return nilExpr{}
+	}
+	return secondExpr(sec)
+}
+
 // Day returns a temporal expression for a day of the month.
 func Day(n int) Expression {
 	return dayExpr(n)

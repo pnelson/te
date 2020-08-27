@@ -11,6 +11,56 @@ type Expression interface {
 	Next(t time.Time) time.Time
 }
 
+type hourExpr int
+
+func (expr hourExpr) IsActive(t time.Time) bool {
+	return t.Hour() == int(expr)
+}
+
+func (expr hourExpr) Next(t time.Time) time.Time {
+	year, month, day := t.Date()
+	loc := t.Location()
+	next := time.Date(year, month, day, int(expr), 0, 0, 0, loc)
+	if t.Equal(next) || t.After(next) {
+		next = next.AddDate(0, 0, 1)
+	}
+	return next
+}
+
+type minuteExpr int
+
+func (expr minuteExpr) IsActive(t time.Time) bool {
+	return t.Minute() == int(expr)
+}
+
+func (expr minuteExpr) Next(t time.Time) time.Time {
+	year, month, day := t.Date()
+	hour := t.Hour()
+	loc := t.Location()
+	next := time.Date(year, month, day, hour, int(expr), 0, 0, loc)
+	if t.Equal(next) || t.After(next) {
+		next = next.Add(time.Hour)
+	}
+	return next
+}
+
+type secondExpr int
+
+func (expr secondExpr) IsActive(t time.Time) bool {
+	return t.Second() == int(expr)
+}
+
+func (expr secondExpr) Next(t time.Time) time.Time {
+	year, month, day := t.Date()
+	hour, min, _ := t.Clock()
+	loc := t.Location()
+	next := time.Date(year, month, day, hour, min, int(expr), 0, loc)
+	if t.Equal(next) || t.After(next) {
+		next = next.Add(time.Minute)
+	}
+	return next
+}
+
 type dayExpr int
 
 func (expr dayExpr) IsActive(t time.Time) bool {
