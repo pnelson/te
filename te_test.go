@@ -348,6 +348,60 @@ func TestMonth(t *testing.T) {
 	}
 }
 
+func TestDate(t *testing.T) {
+	tests := map[string]struct {
+		t    time.Time
+		next time.Time
+	}{
+		"equal": {
+			t:    time.Date(2016, 2, 1, 0, 0, 0, 0, time.UTC),
+			next: time.Date(2017, 2, 1, 0, 0, 0, 0, time.UTC),
+		},
+		"before": {
+			t:    time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
+			next: time.Date(2016, 2, 1, 0, 0, 0, 0, time.UTC),
+		},
+		"after": {
+			t:    time.Date(2016, 2, 2, 0, 0, 0, 0, time.UTC),
+			next: time.Date(2017, 2, 1, 0, 0, 0, 0, time.UTC),
+		},
+	}
+	for name, tt := range tests {
+		expr := Date(time.February, 1)
+		next := expr.Next(tt.t)
+		if !next.Equal(tt.next) {
+			t.Errorf("%s\nhave next %v\nwant next %v", name, next, tt.next)
+		}
+	}
+}
+
+func TestTime(t *testing.T) {
+	tests := map[string]struct {
+		t    time.Time
+		next time.Time
+	}{
+		"equal": {
+			t:    time.Date(2016, 2, 1, 15, 04, 05, 0, time.UTC),
+			next: time.Date(2016, 2, 2, 15, 04, 05, 0, time.UTC),
+		},
+		"before": {
+			t:    time.Date(2016, 2, 1, 15, 01, 00, 0, time.UTC),
+			next: time.Date(2016, 2, 2, 15, 04, 05, 0, time.UTC),
+		},
+		"after": {
+			t:    time.Date(2016, 2, 1, 15, 04, 06, 0, time.UTC),
+			next: time.Date(2016, 2, 2, 15, 04, 05, 0, time.UTC),
+		},
+	}
+	for name, tt := range tests {
+		expr := Time(15, 04, 05)
+		next := expr.Next(tt.t)
+		if !next.Equal(tt.next) {
+			t.Errorf("%s\nhave next %v\nwant next %v", name, next, tt.next)
+		}
+	}
+}
+
 func TestDateRange(t *testing.T) {
 	tests := map[string]struct {
 		t1       time.Time

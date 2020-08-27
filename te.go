@@ -48,6 +48,21 @@ func Month(month time.Month) Expression {
 	return monthExpr(month)
 }
 
+// Date returns a temporal expression for a date.
+func Date(month time.Month, day int) Expression {
+	me := Month(month)
+	de := Day(day)
+	return Intersect(me, de)
+}
+
+// Time returns a temporal expression for a time.
+func Time(hour, min, sec int) Expression {
+	he := Hour(hour)
+	me := Minute(min)
+	se := Second(sec)
+	return Intersect(he, me, se)
+}
+
 // DateRange returns a temporal expression for a date range.
 // Only the month, day and location are considered.
 func DateRange(t1, t2 time.Time) Expression {
