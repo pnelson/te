@@ -111,14 +111,6 @@ func Except(exprs ...Expression) Expression {
 	return exceptExpr(exprs)
 }
 
-// Next returns the next active time for the given expression
-// in the given time zone.
-func Next(expr Expression, loc *time.Location) time.Time {
-	now := time.Now()
-	next := expr.Next(now)
-	return next.In(loc)
-}
-
 // Until returns the duration until the next occurrence of t.
 func Until(expr Expression, t time.Time) time.Duration {
 	next := expr.Next(t)
