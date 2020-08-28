@@ -72,6 +72,9 @@ func (expr dayExpr) Next(t time.Time) time.Time {
 	next := time.Date(t.Year(), t.Month(), int(expr), 0, 0, 0, 0, loc)
 	if t.Equal(next) || t.After(next) {
 		next = next.AddDate(0, 1, 0)
+		if !expr.IsActive(next) {
+			return expr.Next(next)
+		}
 	}
 	return next
 }

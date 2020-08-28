@@ -186,6 +186,12 @@ func TestDay(t *testing.T) {
 			next:     time.Date(2016, 2, 1, 0, 0, 0, 0, time.UTC),
 			isActive: true,
 		},
+		"31st of the month": {
+			day:      31,
+			t:        time.Date(2016, 1, 31, 0, 0, 0, 0, time.UTC),
+			next:     time.Date(2016, 3, 31, 0, 0, 0, 0, time.UTC),
+			isActive: true,
+		},
 	}
 	for name, tt := range tests {
 		expr := Day(tt.day)
