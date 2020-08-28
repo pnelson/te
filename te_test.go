@@ -1,6 +1,7 @@
 package te
 
 import (
+	"reflect"
 	"testing"
 	"time"
 )
@@ -424,7 +425,7 @@ func TestTime(t *testing.T) {
 		},
 		"before": {
 			t:    time.Date(2016, 2, 1, 15, 01, 00, 0, time.UTC),
-			next: time.Date(2016, 2, 2, 15, 04, 05, 0, time.UTC),
+			next: time.Date(2016, 2, 1, 15, 04, 05, 0, time.UTC),
 		},
 		"after": {
 			t:    time.Date(2016, 2, 1, 15, 04, 06, 0, time.UTC),
@@ -553,23 +554,44 @@ func TestUnion(t *testing.T) {
 }
 
 func TestIntersect(t *testing.T) {
-	now := time.Date(2015, 8, 1, 0, 0, 0, 0, time.UTC)
-	expr := Intersect(Month(time.January), Day(4), Hour(9))
-	if expr.IsActive(now) {
-		t.Errorf("should not be active")
+	tests := map[string]struct {
+		t    time.Time
+		expr Expression
+		next []time.Time
+	}{
+		"January 4th at 1am": {
+			t:    time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
+			expr: Intersect(Month(time.January), Day(4), Hour(1)),
+			next: []time.Time{
+				time.Date(2016, 1, 4, 1, 0, 0, 0, time.UTC),
+				time.Date(2017, 1, 4, 1, 0, 0, 0, time.UTC),
+				time.Date(2018, 1, 4, 1, 0, 0, 0, time.UTC),
+			},
+		},
+		"January 4th at 1am (nested)": {
+			t:    time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
+			expr: Intersect(Date(time.January, 4), Hour(1)),
+			next: []time.Time{
+				time.Date(2016, 1, 4, 1, 0, 0, 0, time.UTC),
+				time.Date(2017, 1, 4, 1, 0, 0, 0, time.UTC),
+				time.Date(2018, 1, 4, 1, 0, 0, 0, time.UTC),
+			},
+		},
+		"February 29th": {
+			t:    time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
+			expr: Date(time.February, 29),
+			next: []time.Time{
+				time.Date(2016, 2, 29, 0, 0, 0, 0, time.UTC),
+				time.Date(2020, 2, 29, 0, 0, 0, 0, time.UTC),
+				time.Date(2024, 2, 29, 0, 0, 0, 0, time.UTC),
+			},
+		},
 	}
-	next := expr.Next(now)
-	want := time.Date(2016, 1, 4, 9, 0, 0, 0, time.UTC)
-	if !next.Equal(want) {
-		t.Errorf("next 1\nhave %v\nwant %v", next, want)
-	}
-	next = expr.Next(want)
-	want = time.Date(2017, 1, 4, 9, 0, 0, 0, time.UTC)
-	if !next.Equal(want) {
-		t.Errorf("next 2\nhave %v\nwant %v", next, want)
-	}
-	if !expr.IsActive(want) {
-		t.Errorf("should be active")
+	for name, tt := range tests {
+		next := next(tt.expr, tt.t, len(tt.next))
+		if !reflect.DeepEqual(next, tt.next) {
+			t.Errorf("%s\nhave next %v\nwant next %v", name, next, tt.next)
+		}
 	}
 }
 
@@ -617,4 +639,15 @@ func TestUntil(t *testing.T) {
 			t.Errorf("Until %d.\nhave %v\nwant %v", i, d, tt.d)
 		}
 	}
+}
+
+// next returns the next N times for the given expression
+// including zero times.
+func next(expr Expression, t time.Time, n int) []time.Time {
+	ts := make([]time.Time, n)
+	for i := 0; i < n; i++ {
+		t = expr.Next(t)
+		ts[i] = t
+	}
+	return ts
 }

@@ -215,46 +215,20 @@ func (expr intersectExpr) IsActive(t time.Time) bool {
 }
 
 func (expr intersectExpr) Next(t time.Time) time.Time {
-	// Find each next occurrence from the given time.
-	ts := make([]time.Time, len(expr))
-	for i, e := range expr {
+	ts := make(byTime, 0)
+	for _, e := range expr {
 		next := e.Next(t)
-		ts[i] = next
-	}
-	// Return the earliest active intersection time if applicable.
-	sort.Sort(byTime(ts))
-	for _, t := range ts {
-		if expr.IsActive(t) {
-			return t
+		if next.IsZero() {
+			continue
 		}
+		ts = append(ts, next)
 	}
-	sort.Sort(sort.Reverse(byTime(ts)))
-	// Choose the latest time to be the earliest possible intersection.
+	sort.Sort(ts)
 	t = ts[0]
-	// Find the durations to the next occurrence from this new time.
-	ds := make([]time.Duration, len(expr))
-	for i, e := range expr {
-		next := e.Next(t)
-		ds[i] = next.Sub(t)
+	if expr.IsActive(t) {
+		return t
 	}
-	sort.Sort(sort.Reverse(byDuration(ds)))
-	// Enumerate candidate intersection times by applying duration subsets.
-	ts = []time.Time{t}
-	for _, d := range ds[1:] {
-		ss := make([]time.Time, len(ts))
-		for i, t := range ts {
-			ss[i] = t.Add(d)
-		}
-		ts = append(ts, ss...)
-	}
-	sort.Sort(byTime(ts))
-	// Return the first active intersection time.
-	for _, t := range ts {
-		if expr.IsActive(t) {
-			return t
-		}
-	}
-	return time.Time{}
+	return expr.Next(t)
 }
 
 type exceptExpr []Expression
@@ -282,12 +256,6 @@ type byTime []time.Time
 func (ts byTime) Len() int           { return len(ts) }
 func (ts byTime) Less(i, j int) bool { return ts[i].Before(ts[j]) }
 func (ts byTime) Swap(i, j int)      { ts[i], ts[j] = ts[j], ts[i] }
-
-type byDuration []time.Duration
-
-func (ds byDuration) Len() int           { return len(ds) }
-func (ds byDuration) Less(i, j int) bool { return ds[i] < ds[j] }
-func (ds byDuration) Swap(i, j int)      { ds[i], ds[j] = ds[j], ds[i] }
 
 func dateFrom(t, date time.Time) time.Time {
 	loc := date.Location()
