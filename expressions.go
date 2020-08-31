@@ -132,8 +132,9 @@ type dateRangeExpr struct {
 }
 
 func (expr dateRangeExpr) IsActive(t time.Time) bool {
-	t = dateFrom(t, t)
-	return isBetween(t, expr.t1, expr.t2)
+	t1 := dateFrom(t, expr.t1)
+	t2 := dateFrom(t, expr.t2)
+	return isBetween(t, t1, t2)
 }
 
 func (expr dateRangeExpr) Next(t time.Time) time.Time {
@@ -246,18 +247,18 @@ func (ts byTime) Less(i, j int) bool { return ts[i].Before(ts[j]) }
 func (ts byTime) Swap(i, j int)      { ts[i], ts[j] = ts[j], ts[i] }
 
 func dateFrom(t, date time.Time) time.Time {
-	loc := date.Location()
+	loc := t.Location()
 	_, month, day := date.Date()
 	return time.Date(t.Year(), month, day, 0, 0, 0, 0, loc)
 }
 
-func timeFrom(date, clock time.Time) time.Time {
-	loc := clock.Location()
-	year, month, day := date.Date()
+func timeFrom(t, clock time.Time) time.Time {
+	loc := t.Location()
+	year, month, day := t.Date()
 	hour, min, sec := clock.Clock()
 	return time.Date(year, month, day, hour, min, sec, 0, loc)
 }
 
-func isBetween(t, from, to time.Time) bool {
-	return (t.Equal(from) || t.After(from)) && (t.Equal(to) || t.Before(to))
+func isBetween(t, t1, t2 time.Time) bool {
+	return (t.Equal(t1) || t.After(t1)) && (t.Equal(t2) || t.Before(t2))
 }

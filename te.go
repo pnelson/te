@@ -71,15 +71,17 @@ func Time(hour, min, sec int) Expression {
 	return Intersect(he, me, se)
 }
 
-// DateRange returns a temporal expression for a date range.
-// Only the month, day and location are considered.
-func DateRange(t1, t2 time.Time) Expression {
+// DateRange returns a temporal expression for an inclusive date range.
+func DateRange(m1 time.Month, d1 int, m2 time.Month, d2 int) Expression {
+	t1 := time.Date(1, m1, d1, 0, 0, 0, 0, time.UTC)
+	t2 := time.Date(1, m2, d2, 0, 0, 0, 0, time.UTC)
 	return dateRangeExpr{t1, t2}
 }
 
-// TimeRange returns a temporal expression for a time range.
-// Only the time and location are considered.
-func TimeRange(t1, t2 time.Time) Expression {
+// TimeRange returns a temporal expression for an inclusive time range.
+func TimeRange(h1, m1, s1, h2, m2, s2 int) Expression {
+	t1 := time.Date(1, 1, 1, h1, m1, s1, 0, time.UTC)
+	t2 := time.Date(1, 1, 1, h2, m2, s2, 0, time.UTC)
 	return timeRangeExpr{t1, t2}
 }
 

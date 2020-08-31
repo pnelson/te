@@ -394,36 +394,28 @@ func TestTime(t *testing.T) {
 
 func TestDateRange(t *testing.T) {
 	tests := map[string]struct {
-		t1       time.Time
-		t2       time.Time
 		t        time.Time
 		next     time.Time
 		isActive bool
 	}{
 		"equal": {
-			t1:       time.Date(2016, 8, 1, 0, 0, 0, 0, time.UTC),
-			t2:       time.Date(2016, 9, 4, 0, 0, 0, 0, time.UTC),
 			t:        time.Date(2016, 8, 1, 0, 0, 0, 0, time.UTC),
 			next:     time.Date(2017, 8, 1, 0, 0, 0, 0, time.UTC),
 			isActive: true,
 		},
 		"before": {
-			t1:       time.Date(2016, 8, 3, 0, 0, 0, 0, time.UTC),
-			t2:       time.Date(2016, 9, 4, 0, 0, 0, 0, time.UTC),
-			t:        time.Date(2016, 8, 1, 0, 0, 0, 0, time.UTC),
-			next:     time.Date(2016, 8, 3, 0, 0, 0, 0, time.UTC),
+			t:        time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
+			next:     time.Date(2016, 8, 1, 0, 0, 0, 0, time.UTC),
 			isActive: false,
 		},
 		"after": {
-			t1:       time.Date(2016, 8, 1, 0, 0, 0, 0, time.UTC),
-			t2:       time.Date(2016, 9, 4, 0, 0, 0, 0, time.UTC),
 			t:        time.Date(2016, 8, 3, 0, 0, 0, 0, time.UTC),
 			next:     time.Date(2017, 8, 1, 0, 0, 0, 0, time.UTC),
 			isActive: true,
 		},
 	}
 	for name, tt := range tests {
-		expr := DateRange(tt.t1, tt.t2)
+		expr := DateRange(time.August, 1, time.September, 4)
 		isActive := expr.IsActive(tt.t)
 		if tt.isActive != isActive {
 			t.Errorf("%s\nhave isActive %v\nwant isActive %v", name, isActive, tt.isActive)
@@ -438,36 +430,28 @@ func TestDateRange(t *testing.T) {
 
 func TestTimeRange(t *testing.T) {
 	tests := map[string]struct {
-		t1       time.Time
-		t2       time.Time
 		t        time.Time
 		next     time.Time
 		isActive bool
 	}{
 		"equal": {
-			t1:       time.Date(1, 1, 1, 6, 0, 0, 0, time.UTC),
-			t2:       time.Date(1, 1, 1, 7, 0, 0, 0, time.UTC),
 			t:        time.Date(2016, 1, 1, 6, 0, 0, 0, time.UTC),
 			next:     time.Date(2016, 1, 2, 6, 0, 0, 0, time.UTC),
 			isActive: true,
 		},
 		"before": {
-			t1:       time.Date(1, 1, 1, 6, 0, 0, 0, time.UTC),
-			t2:       time.Date(1, 1, 1, 7, 0, 0, 0, time.UTC),
 			t:        time.Date(2016, 1, 1, 4, 0, 0, 0, time.UTC),
 			next:     time.Date(2016, 1, 1, 6, 0, 0, 0, time.UTC),
 			isActive: false,
 		},
 		"after": {
-			t1:       time.Date(1, 1, 1, 6, 0, 0, 0, time.UTC),
-			t2:       time.Date(1, 1, 1, 7, 0, 0, 0, time.UTC),
 			t:        time.Date(2016, 1, 1, 8, 0, 0, 0, time.UTC),
 			next:     time.Date(2016, 1, 2, 6, 0, 0, 0, time.UTC),
 			isActive: false,
 		},
 	}
 	for name, tt := range tests {
-		expr := TimeRange(tt.t1, tt.t2)
+		expr := TimeRange(6, 0, 0, 7, 0, 0)
 		isActive := expr.IsActive(tt.t)
 		if tt.isActive != isActive {
 			t.Errorf("%s\nhave isActive %v\nwant isActive %v", name, isActive, tt.isActive)
@@ -563,6 +547,23 @@ func TestIntersect(t *testing.T) {
 				time.Date(2016, 7, 1, 0, 0, 0, 0, time.UTC),
 				time.Date(2016, 9, 1, 0, 0, 0, 0, time.UTC),
 				time.Time{},
+			},
+		},
+		"every Friday and Saturday between Jan 1 and Jan 14": {
+			t: time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
+			expr: Intersect(
+				Union(
+					Weekday(time.Friday),
+					Weekday(time.Saturday),
+				),
+				DateRange(time.January, 1, time.January, 14),
+			),
+			next: []time.Time{
+				time.Date(2016, 1, 2, 0, 0, 0, 0, time.UTC),
+				time.Date(2016, 1, 8, 0, 0, 0, 0, time.UTC),
+				time.Date(2016, 1, 9, 0, 0, 0, 0, time.UTC),
+				time.Date(2017, 1, 6, 0, 0, 0, 0, time.UTC),
+				time.Date(2017, 1, 7, 0, 0, 0, 0, time.UTC),
 			},
 		},
 	}
