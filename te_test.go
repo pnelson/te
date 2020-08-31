@@ -586,6 +586,34 @@ func TestIntersect(t *testing.T) {
 				time.Date(2024, 2, 29, 0, 0, 0, 0, time.UTC),
 			},
 		},
+		"1st and 5th of every month on Thursday and Friday except August and December in 2016": {
+			t: time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
+			expr: Intersect(
+				Year(2016),
+				Union(
+					Day(1),
+					Day(5),
+				),
+				Union(
+					Weekday(time.Thursday, 0),
+					Weekday(time.Friday, 0),
+				),
+				Except(
+					Union(
+						Month(time.August),
+						Month(time.December),
+					),
+				),
+			),
+			next: []time.Time{
+				time.Date(2016, 2, 5, 0, 0, 0, 0, time.UTC),
+				time.Date(2016, 4, 1, 0, 0, 0, 0, time.UTC),
+				time.Date(2016, 5, 5, 0, 0, 0, 0, time.UTC),
+				time.Date(2016, 7, 1, 0, 0, 0, 0, time.UTC),
+				time.Date(2016, 9, 1, 0, 0, 0, 0, time.UTC),
+				time.Time{},
+			},
+		},
 	}
 	for name, tt := range tests {
 		next := next(tt.expr, tt.t, len(tt.next))

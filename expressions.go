@@ -219,6 +219,9 @@ func (expr intersectExpr) Next(t time.Time) time.Time {
 	for _, e := range expr {
 		next := e.Next(t)
 		if next.IsZero() {
+			if !e.IsActive(t) {
+				return time.Time{}
+			}
 			continue
 		}
 		ts = append(ts, next)
@@ -243,7 +246,12 @@ func (expr exceptExpr) IsActive(t time.Time) bool {
 }
 
 func (expr exceptExpr) Next(t time.Time) time.Time {
-	return time.Time{}
+	ts := make(byTime, len(expr))
+	for i, e := range expr {
+		ts[i] = e.Next(t)
+	}
+	sort.Sort(ts)
+	return ts[0]
 }
 
 type nilExpr struct{}
