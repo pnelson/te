@@ -31,7 +31,13 @@ func Second(sec int) Expression {
 }
 
 // Day returns a temporal expression for a day of the month.
+// Months without the nth day are ignored. If n is -1, the expression
+// represents the last day of the month. If n is greater than 31 or less
+// than -1, the nil expression is returned.
 func Day(n int) Expression {
+	if n < -1 || n == 0 || n > 31 {
+		return nilExpr{}
+	}
 	return dayExpr(n)
 }
 

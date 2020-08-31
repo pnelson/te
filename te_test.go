@@ -169,6 +169,12 @@ func TestDay(t *testing.T) {
 		next     time.Time
 		isActive bool
 	}{
+		"zero": {
+			day:      0,
+			t:        time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
+			next:     time.Time{},
+			isActive: false,
+		},
 		"equal": {
 			day:      1,
 			t:        time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
@@ -183,7 +189,7 @@ func TestDay(t *testing.T) {
 		},
 		"after": {
 			day:      1,
-			t:        time.Date(2016, 1, 1, 9, 0, 0, 0, time.UTC),
+			t:        time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
 			next:     time.Date(2016, 2, 1, 0, 0, 0, 0, time.UTC),
 			isActive: true,
 		},
@@ -192,6 +198,18 @@ func TestDay(t *testing.T) {
 			t:        time.Date(2016, 1, 31, 0, 0, 0, 0, time.UTC),
 			next:     time.Date(2016, 3, 31, 0, 0, 0, 0, time.UTC),
 			isActive: true,
+		},
+		"last day of the month": {
+			day:      -1,
+			t:        time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 31, 0, 0, 0, 0, time.UTC),
+			isActive: false,
+		},
+		"nth last day of the month": {
+			day:      -2,
+			t:        time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
+			next:     time.Time{},
+			isActive: false,
 		},
 	}
 	for name, tt := range tests {

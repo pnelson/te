@@ -69,7 +69,12 @@ func (expr dayExpr) IsActive(t time.Time) bool {
 
 func (expr dayExpr) Next(t time.Time) time.Time {
 	loc := t.Location()
-	next := time.Date(t.Year(), t.Month(), int(expr), 0, 0, 0, 0, loc)
+	next := time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, loc)
+	if int(expr) > 0 {
+		next = next.AddDate(0, 0, int(expr)-1)
+	} else {
+		next = next.AddDate(0, 1, -1)
+	}
 	if t.Equal(next) || t.After(next) {
 		next = next.AddDate(0, 1, 0)
 		if !expr.IsActive(next) {
