@@ -79,46 +79,21 @@ func (expr dayExpr) Next(t time.Time) time.Time {
 	return next
 }
 
-type weekdayExpr struct {
-	d time.Weekday
-	n int
-}
+type weekdayExpr time.Weekday
 
 func (expr weekdayExpr) IsActive(t time.Time) bool {
-	if t.Weekday() != expr.d {
-		return false
-	}
-	if expr.n > 0 {
-		return weekInMonth(t) == expr.n
-	} else if expr.n < 0 {
-		return weekInMonthFromEnd(t) == -expr.n
-	}
-	return true
+	return t.Weekday() == time.Weekday(expr)
 }
 
 func (expr weekdayExpr) Next(t time.Time) time.Time {
 	loc := t.Location()
 	year, month, day := t.Date()
-	t = time.Date(year, month, day, 0, 0, 0, 0, loc)
-	t = expr.next(t)
-	if expr.n > 0 {
-		for weekInMonth(t) != expr.n {
-			t = expr.next(t)
-		}
-	} else if expr.n < 0 {
-		for weekInMonthFromEnd(t) != -expr.n {
-			t = expr.next(t)
-		}
-	}
-	return t
-}
-
-func (expr weekdayExpr) next(t time.Time) time.Time {
-	days := int(expr.d - t.Weekday())
+	next := time.Date(year, month, day, 0, 0, 0, 0, loc)
+	days := int(time.Weekday(expr) - t.Weekday())
 	if days <= 0 {
 		days += 7
 	}
-	return t.AddDate(0, 0, days)
+	return next.AddDate(0, 0, days)
 }
 
 type monthExpr time.Month
@@ -280,23 +255,4 @@ func timeFrom(date, clock time.Time) time.Time {
 
 func isBetween(t, from, to time.Time) bool {
 	return (t.Equal(from) || t.After(from)) && (t.Equal(to) || t.Before(to))
-}
-
-func weekInMonth(t time.Time) int {
-	day := t.Day()
-	return weekInMonthFromDay(day)
-}
-
-func weekInMonthFromEnd(t time.Time) int {
-	day := daysFromMonthEnd(t)
-	return weekInMonthFromDay(day)
-}
-
-func weekInMonthFromDay(day int) int {
-	return ((day - 1) / 7) + 1
-}
-
-func daysFromMonthEnd(t time.Time) int {
-	day := t.Day()
-	return t.AddDate(0, 1, -day).Day() - day
 }

@@ -36,11 +36,8 @@ func Day(n int) Expression {
 }
 
 // Weekday returns a temporal expression for weekdays.
-// If n is zero, the expression represents every given weekday.
-// If n is positive, the expression represents the nth given weekday.
-// If n is negative, the expression represents the nth last given weekday.
-func Weekday(d time.Weekday, n int) Expression {
-	return weekdayExpr{d, n}
+func Weekday(d time.Weekday) Expression {
+	return weekdayExpr(d)
 }
 
 // Month returns a temporal expression for months of the year.
