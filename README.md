@@ -24,14 +24,14 @@ for i := 0; i < 4; i++ {
 // 2020-12-01 00:00:00 -0500 EST
 ```
 
-To find every day at 4am:
+To find every day at 4am with an iterator:
 
 ```go
+t := time.Now()
 expr := te.Hour(4)
-next := time.Now()
+next := te.Iter(expr, t)
 for i := 0; i < 4; i++ {
-  next = expr.Next(next)
-  fmt.Println(next)
+  fmt.Println(<-next)
 }
 // 2020-09-01 04:00:00 -0400 EDT
 // 2020-09-02 04:00:00 -0400 EDT
@@ -44,6 +44,7 @@ example, one can continuously generate `time.Time`s for every 3rd or 5th of
 the month that falls on a Thursday or Friday except in February and December.
 
 ```go
+t := time.Now()
 expr := te.Intersect(
   te.Union(
     te.Day(3),
@@ -60,10 +61,9 @@ expr := te.Intersect(
     ),
   ),
 )
-next := time.Now()
+next := te.Iter(expr, t)
 for i := 0; i < 4; i++ {
-  next = expr.Next(next)
-  fmt.Println(next)
+  fmt.Println(<-next)
 }
 // 2020-09-03 00:00:00 -0400 EDT
 // 2020-11-05 00:00:00 -0500 EST

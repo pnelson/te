@@ -603,6 +603,27 @@ func TestExcept(t *testing.T) {
 	}
 }
 
+func TestIter(t *testing.T) {
+	now := time.Date(2016, 9, 1, 0, 0, 0, 0, time.UTC)
+	expr := Intersect(Year(2016), Day(1))
+	next := Iter(expr, now)
+	have := make([]time.Time, 0)
+	want := []time.Time{
+		time.Date(2016, 10, 1, 0, 0, 0, 0, time.UTC),
+		time.Date(2016, 11, 1, 0, 0, 0, 0, time.UTC),
+		time.Date(2016, 12, 1, 0, 0, 0, 0, time.UTC),
+	}
+	for i := 0; i < 3; i++ {
+		have = append(have, <-next)
+	}
+	if !reflect.DeepEqual(have, want) {
+		t.Fatalf("Iter\nhave %v\nwant %v", have, want)
+	}
+	if !(<-next).IsZero() {
+		t.Fatalf("exhausted iterator should return zero")
+	}
+}
+
 func TestUntil(t *testing.T) {
 	tests := []struct {
 		expr Expression

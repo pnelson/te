@@ -1,7 +1,9 @@
 // Package te implements temporal expressions.
 package te
 
-import "time"
+import (
+	"time"
+)
 
 // Hour returns a temporal expression for an hour.
 // If hour is negative or greater than 23, the nil expression is returned.
@@ -114,6 +116,24 @@ func Except(exprs ...Expression) Expression {
 		return nilExpr{}
 	}
 	return exceptExpr(exprs)
+}
+
+// Iter returns a receive-only channel of next active times
+// for the given expression. The channel is closed when the
+// expression returns a zero time.
+func Iter(expr Expression, t time.Time) <-chan time.Time {
+	ch := make(chan time.Time)
+	go func() {
+		for {
+			t = expr.Next(t)
+			if t.IsZero() {
+				close(ch)
+				return
+			}
+			ch <- t
+		}
+	}()
+	return ch
 }
 
 // Until returns the duration until the next occurrence of t.
