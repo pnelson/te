@@ -33,10 +33,10 @@ for i := 0; i < 4; i++ {
   next = expr.Next(next)
   fmt.Println(next)
 }
-2020-09-01 04:00:00 -0400 EDT
-2020-09-02 04:00:00 -0400 EDT
-2020-09-03 04:00:00 -0400 EDT
-2020-09-04 04:00:00 -0400 EDT
+// 2020-09-01 04:00:00 -0400 EDT
+// 2020-09-02 04:00:00 -0400 EDT
+// 2020-09-03 04:00:00 -0400 EDT
+// 2020-09-04 04:00:00 -0400 EDT
 ```
 
 Complex expressions can be composed from more primitive expressions. For
