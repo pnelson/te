@@ -33,6 +33,30 @@ func (expr hourExpr) String() string {
 	return fmt.Sprintf("te.Hour(%d)", int(expr))
 }
 
+type hourlyExpr struct {
+	n int
+	d time.Duration
+}
+
+func (expr hourlyExpr) IsActive(t time.Time) bool {
+	return t.Hour()%expr.n == 0
+}
+
+func (expr hourlyExpr) Next(t time.Time) time.Time {
+	year, month, day := t.Date()
+	hour := t.Hour()
+	loc := t.Location()
+	next := time.Date(year, month, day, hour+expr.n-(hour%expr.n), 0, 0, 0, loc)
+	if next.Day() != day {
+		next = time.Date(year, month, day+1, 0, 0, 0, 0, loc)
+	}
+	return next
+}
+
+func (expr hourlyExpr) String() string {
+	return fmt.Sprintf("te.Hourly(%d)", expr.n)
+}
+
 type minuteExpr int
 
 func (expr minuteExpr) IsActive(t time.Time) bool {
@@ -54,6 +78,30 @@ func (expr minuteExpr) String() string {
 	return fmt.Sprintf("te.Minute(%d)", int(expr))
 }
 
+type minutelyExpr struct {
+	n int
+	d time.Duration
+}
+
+func (expr minutelyExpr) IsActive(t time.Time) bool {
+	return t.Minute()%expr.n == 0
+}
+
+func (expr minutelyExpr) Next(t time.Time) time.Time {
+	year, month, day := t.Date()
+	hour, min, _ := t.Clock()
+	loc := t.Location()
+	next := time.Date(year, month, day, hour, min+expr.n-(min%expr.n), 0, 0, loc)
+	if next.Hour() != hour {
+		next = time.Date(year, month, day, hour+1, 0, 0, 0, loc)
+	}
+	return next
+}
+
+func (expr minutelyExpr) String() string {
+	return fmt.Sprintf("te.Minutely(%d)", expr.n)
+}
+
 type secondExpr int
 
 func (expr secondExpr) IsActive(t time.Time) bool {
@@ -73,6 +121,30 @@ func (expr secondExpr) Next(t time.Time) time.Time {
 
 func (expr secondExpr) String() string {
 	return fmt.Sprintf("te.Second(%d)", int(expr))
+}
+
+type secondlyExpr struct {
+	n int
+	d time.Duration
+}
+
+func (expr secondlyExpr) IsActive(t time.Time) bool {
+	return t.Second()%expr.n == 0
+}
+
+func (expr secondlyExpr) Next(t time.Time) time.Time {
+	year, month, day := t.Date()
+	hour, min, sec := t.Clock()
+	loc := t.Location()
+	next := time.Date(year, month, day, hour, min, sec+expr.n-(sec%expr.n), 0, loc)
+	if next.Minute() != min {
+		next = time.Date(year, month, day, hour, min+1, 0, 0, loc)
+	}
+	return next
+}
+
+func (expr secondlyExpr) String() string {
+	return fmt.Sprintf("te.Secondly(%d)", expr.n)
 }
 
 type dayExpr int

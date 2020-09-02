@@ -12,6 +12,17 @@ func Hour(hour int) Expression {
 	return hourExpr(hour)
 }
 
+// Hourly returns a temporal expression for hourly intervals.
+// If n is less than 1 or greater than 12, the nil expression is returned.
+// If n wraps into a new day, the hours begin counting from zero again.
+func Hourly(n int) Expression {
+	if n < 1 || n > 12 {
+		return nilExpr{}
+	}
+	d := time.Duration(n) * time.Hour
+	return hourlyExpr{n, d}
+}
+
 // Minute returns a temporal expression for a minute.
 // If min is negative or greater than 59, the nil expression is returned.
 func Minute(min int) Expression {
@@ -21,6 +32,17 @@ func Minute(min int) Expression {
 	return minuteExpr(min)
 }
 
+// Minutely returns a temporal expression for minutely intervals.
+// If n is less than 1 or greater than 30, the nil expression is returned.
+// If n wraps into a new hour, the minutes begin counting from zero again.
+func Minutely(n int) Expression {
+	if n < 1 || n > 30 {
+		return nilExpr{}
+	}
+	d := time.Duration(n) * time.Minute
+	return minutelyExpr{n, d}
+}
+
 // Second returns a temporal expression for a second.
 // If sec is negative or greater than 59, the nil expression is returned.
 func Second(sec int) Expression {
@@ -28,6 +50,17 @@ func Second(sec int) Expression {
 		return nilExpr{}
 	}
 	return secondExpr(sec)
+}
+
+// Secondly returns a temporal expression for secondly intervals.
+// If n is less than 1 or greater than 30, the nil expression is returned.
+// If n wraps into a new minute, the seconds begin counting from zero again.
+func Secondly(n int) Expression {
+	if n < 1 || n > 30 {
+		return nilExpr{}
+	}
+	d := time.Duration(n) * time.Second
+	return secondlyExpr{n, d}
 }
 
 // Day returns a temporal expression for a day of the month.

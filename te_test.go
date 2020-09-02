@@ -59,6 +59,70 @@ func TestHour(t *testing.T) {
 	}
 }
 
+func TestHourly(t *testing.T) {
+	tests := map[string]struct {
+		n        int
+		t        time.Time
+		next     time.Time
+		isActive bool
+	}{
+		"zero": {
+			n:        5,
+			t:        time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 5, 0, 0, 0, time.UTC),
+			isActive: true,
+		},
+		"equal": {
+			n:        5,
+			t:        time.Date(2016, 1, 1, 5, 0, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 10, 0, 0, 0, time.UTC),
+			isActive: true,
+		},
+		"before": {
+			n:        5,
+			t:        time.Date(2016, 1, 1, 4, 0, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 5, 0, 0, 0, time.UTC),
+			isActive: false,
+		},
+		"after": {
+			n:        5,
+			t:        time.Date(2016, 1, 1, 6, 0, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 10, 0, 0, 0, time.UTC),
+			isActive: false,
+		},
+		"wrap": {
+			n:        5,
+			t:        time.Date(2016, 1, 1, 22, 0, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 2, 0, 0, 0, 0, time.UTC),
+			isActive: false,
+		},
+		"less than 1": {
+			n:        0,
+			t:        time.Date(2016, 1, 1, 6, 0, 0, 0, time.UTC),
+			next:     time.Time{},
+			isActive: false,
+		},
+		"greater than 12": {
+			n:        13,
+			t:        time.Date(2016, 1, 1, 6, 0, 0, 0, time.UTC),
+			next:     time.Time{},
+			isActive: false,
+		},
+	}
+	for name, tt := range tests {
+		expr := Hourly(tt.n)
+		isActive := expr.IsActive(tt.t)
+		if tt.isActive != isActive {
+			t.Errorf("%s\nhave isActive %v\nwant isActive %v", name, isActive, tt.isActive)
+			continue
+		}
+		next := expr.Next(tt.t)
+		if !next.Equal(tt.next) {
+			t.Errorf("%s\nhave next %v\nwant next %v", name, next, tt.next)
+		}
+	}
+}
+
 func TestMinute(t *testing.T) {
 	tests := map[string]struct {
 		min      int
@@ -111,6 +175,70 @@ func TestMinute(t *testing.T) {
 	}
 }
 
+func TestMinutely(t *testing.T) {
+	tests := map[string]struct {
+		n        int
+		t        time.Time
+		next     time.Time
+		isActive bool
+	}{
+		"zero": {
+			n:        15,
+			t:        time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 0, 15, 0, 0, time.UTC),
+			isActive: true,
+		},
+		"equal": {
+			n:        15,
+			t:        time.Date(2016, 1, 1, 0, 15, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 0, 30, 0, 0, time.UTC),
+			isActive: true,
+		},
+		"before": {
+			n:        15,
+			t:        time.Date(2016, 1, 1, 0, 14, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 0, 15, 0, 0, time.UTC),
+			isActive: false,
+		},
+		"after": {
+			n:        15,
+			t:        time.Date(2016, 1, 1, 0, 16, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 0, 30, 0, 0, time.UTC),
+			isActive: false,
+		},
+		"wrap": {
+			n:        15,
+			t:        time.Date(2016, 1, 1, 0, 58, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 1, 0, 0, 0, time.UTC),
+			isActive: false,
+		},
+		"less than 1": {
+			n:        0,
+			t:        time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
+			next:     time.Time{},
+			isActive: false,
+		},
+		"greater than 30": {
+			n:        31,
+			t:        time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
+			next:     time.Time{},
+			isActive: false,
+		},
+	}
+	for name, tt := range tests {
+		expr := Minutely(tt.n)
+		isActive := expr.IsActive(tt.t)
+		if tt.isActive != isActive {
+			t.Errorf("%s\nhave isActive %v\nwant isActive %v", name, isActive, tt.isActive)
+			continue
+		}
+		next := expr.Next(tt.t)
+		if !next.Equal(tt.next) {
+			t.Errorf("%s\nhave next %v\nwant next %v", name, next, tt.next)
+		}
+	}
+}
+
 func TestSecond(t *testing.T) {
 	tests := map[string]struct {
 		sec      int
@@ -151,6 +279,70 @@ func TestSecond(t *testing.T) {
 	}
 	for name, tt := range tests {
 		expr := Second(tt.sec)
+		isActive := expr.IsActive(tt.t)
+		if tt.isActive != isActive {
+			t.Errorf("%s\nhave isActive %v\nwant isActive %v", name, isActive, tt.isActive)
+			continue
+		}
+		next := expr.Next(tt.t)
+		if !next.Equal(tt.next) {
+			t.Errorf("%s\nhave next %v\nwant next %v", name, next, tt.next)
+		}
+	}
+}
+
+func TestSecondly(t *testing.T) {
+	tests := map[string]struct {
+		n        int
+		t        time.Time
+		next     time.Time
+		isActive bool
+	}{
+		"zero": {
+			n:        15,
+			t:        time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 0, 0, 15, 0, time.UTC),
+			isActive: true,
+		},
+		"equal": {
+			n:        15,
+			t:        time.Date(2016, 1, 1, 0, 0, 15, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 0, 0, 30, 0, time.UTC),
+			isActive: true,
+		},
+		"before": {
+			n:        15,
+			t:        time.Date(2016, 1, 1, 0, 0, 14, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 0, 0, 15, 0, time.UTC),
+			isActive: false,
+		},
+		"after": {
+			n:        15,
+			t:        time.Date(2016, 1, 1, 0, 0, 16, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 0, 0, 30, 0, time.UTC),
+			isActive: false,
+		},
+		"wrap": {
+			n:        15,
+			t:        time.Date(2016, 1, 1, 0, 0, 58, 0, time.UTC),
+			next:     time.Date(2016, 1, 1, 0, 1, 0, 0, time.UTC),
+			isActive: false,
+		},
+		"less than 1": {
+			n:        0,
+			t:        time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
+			next:     time.Time{},
+			isActive: false,
+		},
+		"greater than 30": {
+			n:        31,
+			t:        time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC),
+			next:     time.Time{},
+			isActive: false,
+		},
+	}
+	for name, tt := range tests {
+		expr := Secondly(tt.n)
 		isActive := expr.IsActive(tt.t)
 		if tt.isActive != isActive {
 			t.Errorf("%s\nhave isActive %v\nwant isActive %v", name, isActive, tt.isActive)
@@ -631,13 +823,25 @@ func TestString(t *testing.T) {
 			Hour(15),
 			"te.Hour(15)",
 		},
+		"hourly": {
+			Hourly(2),
+			"te.Hourly(2)",
+		},
 		"minute": {
 			Minute(4),
 			"te.Minute(4)",
 		},
+		"minutely": {
+			Minutely(2),
+			"te.Minutely(2)",
+		},
 		"second": {
 			Second(5),
 			"te.Second(5)",
+		},
+		"secondly": {
+			Secondly(2),
+			"te.Secondly(2)",
 		},
 		"day": {
 			Day(2),
