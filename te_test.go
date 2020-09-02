@@ -1,6 +1,7 @@
 package te
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -617,6 +618,73 @@ func TestUntil(t *testing.T) {
 		d := Until(tt.expr, now)
 		if d != tt.d {
 			t.Errorf("Until %d.\nhave %v\nwant %v", i, d, tt.d)
+		}
+	}
+}
+
+func TestString(t *testing.T) {
+	tests := map[string]struct {
+		expr Expression
+		want string
+	}{
+		"hour": {
+			Hour(15),
+			"te.Hour(15)",
+		},
+		"minute": {
+			Minute(4),
+			"te.Minute(4)",
+		},
+		"second": {
+			Second(5),
+			"te.Second(5)",
+		},
+		"day": {
+			Day(2),
+			"te.Day(2)",
+		},
+		"weekday": {
+			Weekday(time.Monday),
+			"te.Weekday(time.Monday)",
+		},
+		"month": {
+			Month(time.January),
+			"te.Month(time.January)",
+		},
+		"year": {
+			Year(2016),
+			"te.Year(2016)",
+		},
+		"date range": {
+			DateRange(time.January, 2, time.February, 14),
+			"te.DateRange(time.January, 2, time.February, 14)",
+		},
+		"time range": {
+			TimeRange(6, 0, 0, 7, 0, 0),
+			"te.TimeRange(6, 0, 0, 7, 0, 0)",
+		},
+		"union": {
+			Union(Weekday(time.Tuesday), Weekday(time.Thursday)),
+			"te.Union(te.Weekday(time.Tuesday), te.Weekday(time.Thursday))",
+		},
+		"intersect": {
+			Intersect(Month(time.January), Weekday(time.Tuesday)),
+			"te.Intersect(te.Month(time.January), te.Weekday(time.Tuesday))",
+		},
+		"except": {
+			Except(Weekday(time.Sunday)),
+			"te.Except(te.Weekday(time.Sunday))",
+		},
+	}
+	for name, tt := range tests {
+		e, ok := tt.expr.(fmt.Stringer)
+		if !ok {
+			t.Errorf("%s should be a fmt.Stringer", name)
+			continue
+		}
+		have := e.String()
+		if have != tt.want {
+			t.Errorf("%s\nhave %s\nwant %s", name, have, tt.want)
 		}
 	}
 }

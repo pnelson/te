@@ -1,7 +1,9 @@
 package te
 
 import (
+	"fmt"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -27,6 +29,10 @@ func (expr hourExpr) Next(t time.Time) time.Time {
 	return next
 }
 
+func (expr hourExpr) String() string {
+	return fmt.Sprintf("te.Hour(%d)", int(expr))
+}
+
 type minuteExpr int
 
 func (expr minuteExpr) IsActive(t time.Time) bool {
@@ -44,6 +50,10 @@ func (expr minuteExpr) Next(t time.Time) time.Time {
 	return next
 }
 
+func (expr minuteExpr) String() string {
+	return fmt.Sprintf("te.Minute(%d)", int(expr))
+}
+
 type secondExpr int
 
 func (expr secondExpr) IsActive(t time.Time) bool {
@@ -59,6 +69,10 @@ func (expr secondExpr) Next(t time.Time) time.Time {
 		next = next.Add(time.Minute)
 	}
 	return next
+}
+
+func (expr secondExpr) String() string {
+	return fmt.Sprintf("te.Second(%d)", int(expr))
 }
 
 type dayExpr int
@@ -84,6 +98,10 @@ func (expr dayExpr) Next(t time.Time) time.Time {
 	return next
 }
 
+func (expr dayExpr) String() string {
+	return fmt.Sprintf("te.Day(%d)", int(expr))
+}
+
 type weekdayExpr time.Weekday
 
 func (expr weekdayExpr) IsActive(t time.Time) bool {
@@ -101,6 +119,10 @@ func (expr weekdayExpr) Next(t time.Time) time.Time {
 	return next.AddDate(0, 0, days)
 }
 
+func (expr weekdayExpr) String() string {
+	return fmt.Sprintf("te.Weekday(time.%s)", time.Weekday(expr))
+}
+
 type monthExpr time.Month
 
 func (expr monthExpr) IsActive(t time.Time) bool {
@@ -116,6 +138,10 @@ func (expr monthExpr) Next(t time.Time) time.Time {
 	return next
 }
 
+func (expr monthExpr) String() string {
+	return fmt.Sprintf("te.Month(time.%s)", time.Month(expr))
+}
+
 type yearExpr int
 
 func (expr yearExpr) IsActive(t time.Time) bool {
@@ -124,6 +150,10 @@ func (expr yearExpr) IsActive(t time.Time) bool {
 
 func (expr yearExpr) Next(t time.Time) time.Time {
 	return time.Time{}
+}
+
+func (expr yearExpr) String() string {
+	return fmt.Sprintf("te.Year(%d)", int(expr))
 }
 
 type dateRangeExpr struct {
@@ -145,6 +175,12 @@ func (expr dateRangeExpr) Next(t time.Time) time.Time {
 	return next
 }
 
+func (expr dateRangeExpr) String() string {
+	return fmt.Sprintf("te.DateRange(time.%s, %d, time.%s, %d)",
+		expr.t1.Month(), expr.t1.Day(),
+		expr.t2.Month(), expr.t2.Day())
+}
+
 type timeRangeExpr struct {
 	t1 time.Time
 	t2 time.Time
@@ -162,6 +198,12 @@ func (expr timeRangeExpr) Next(t time.Time) time.Time {
 		next = next.AddDate(0, 0, 1)
 	}
 	return next
+}
+
+func (expr timeRangeExpr) String() string {
+	return fmt.Sprintf("te.TimeRange(%d, %d, %d, %d, %d, %d)",
+		expr.t1.Hour(), expr.t1.Minute(), expr.t1.Second(),
+		expr.t2.Hour(), expr.t2.Minute(), expr.t2.Second())
 }
 
 type unionExpr []Expression
@@ -182,6 +224,10 @@ func (expr unionExpr) Next(t time.Time) time.Time {
 	}
 	sort.Sort(ts)
 	return ts[0]
+}
+
+func (expr unionExpr) String() string {
+	return formatExpr("Union", expr)
 }
 
 type intersectExpr []Expression
@@ -215,6 +261,10 @@ func (expr intersectExpr) Next(t time.Time) time.Time {
 	return expr.Next(t)
 }
 
+func (expr intersectExpr) String() string {
+	return formatExpr("Intersect", expr)
+}
+
 type exceptExpr []Expression
 
 func (expr exceptExpr) IsActive(t time.Time) bool {
@@ -233,6 +283,10 @@ func (expr exceptExpr) Next(t time.Time) time.Time {
 	}
 	sort.Sort(ts)
 	return ts[0]
+}
+
+func (expr exceptExpr) String() string {
+	return formatExpr("Except", expr)
 }
 
 type nilExpr struct{}
@@ -261,4 +315,19 @@ func timeFrom(t, clock time.Time) time.Time {
 
 func isBetween(t, t1, t2 time.Time) bool {
 	return (t.Equal(t1) || t.After(t1)) && (t.Equal(t2) || t.Before(t2))
+}
+
+func formatExpr(kind string, expr []Expression) string {
+	var s strings.Builder
+	s.WriteString("te.")
+	s.WriteString(kind)
+	s.WriteString("(")
+	for i, e := range expr {
+		s.WriteString(fmt.Sprintf("%s", e))
+		if i != len(expr)-1 {
+			s.WriteString(", ")
+		}
+	}
+	s.WriteString(")")
+	return s.String()
 }
