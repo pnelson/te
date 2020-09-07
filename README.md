@@ -71,6 +71,26 @@ for i := 0; i < 4; i++ {
 // 2021-06-03 00:00:00 -0400 EDT
 ```
 
+Limited expression parsing is supported:
+
+```go
+expr, err := te.Parse("4am")
+if err != nil {
+  log.Fatal(err)
+}
+next := time.Now()
+for i := 0; i < 4; i++ {
+  next = expr.Next(next)
+  fmt.Println(next)
+}
+// 2020-09-01 04:00:00 -0400 EDT
+// 2020-09-02 04:00:00 -0400 EDT
+// 2020-09-03 04:00:00 -0400 EDT
+// 2020-09-04 04:00:00 -0400 EDT
+```
+
+See `parser_test.go` for more examples.
+
 ## Inspiration
 
 This package is inspired by a paper on Recurring Events for Calendars
