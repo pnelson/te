@@ -91,23 +91,23 @@ func (l *lexer) value() string {
 	return l.input[l.i:l.j]
 }
 
-func readExpr(l *lexer) stateFn {
-	l.readFn(unicode.IsSpace)
-	l.ignore()
+func readAnd(l *lexer) stateFn {
+	l.read()
+	l.emit(tokenAnd)
 	r := l.peek()
 	switch {
-	case r == eof:
-		return nil
-	case unicode.IsLetter(r):
-		return readLetter
 	case unicode.IsDigit(r):
 		return readDigit
+	case unicode.IsLetter(r):
+		return readLetter
+	case unicode.IsSpace(r):
+		return readSpace
 	}
 	return l.errorf("invalid character")
 }
 
 func readColon(l *lexer) stateFn {
-	_ = l.read()
+	l.read()
 	l.emit(tokenColon)
 	r := l.peek()
 	if !unicode.IsDigit(r) {
@@ -130,7 +130,24 @@ func readDigit(l *lexer) stateFn {
 	case ':':
 		return readColon
 	}
-	return readSpace
+	return readNext
+}
+
+func readExpr(l *lexer) stateFn {
+	r := l.peek()
+	switch {
+	case r == eof:
+		return nil
+	case r == '/':
+		return readAnd
+	case unicode.IsDigit(r):
+		return readDigit
+	case unicode.IsLetter(r):
+		return readLetter
+	case unicode.IsSpace(r):
+		return readSpace
+	}
+	return l.errorf("invalid character")
 }
 
 func readLetter(l *lexer) stateFn {
@@ -220,9 +237,24 @@ func readLetter(l *lexer) stateFn {
 	case "last":
 		l.emit(tokenLast)
 	default:
-		return nil
+		return l.errorf("invalid character")
 	}
-	return readSpace
+	return readNext
+}
+
+func readNext(l *lexer) stateFn {
+	r := l.peek()
+	switch {
+	case r == eof:
+		return nil
+	case r == ',':
+		return readAnd
+	case r == '/':
+		return readAnd
+	case unicode.IsSpace(r):
+		return readSpace
+	}
+	return l.errorf("invalid character")
 }
 
 func readOrdinal(l *lexer) stateFn {
@@ -240,7 +272,7 @@ func readOrdinal(l *lexer) stateFn {
 		return l.errorf("invalid ordinal")
 	}
 	l.emit(tokenOrdinal)
-	return readSpace
+	return readNext
 }
 
 func readSpace(l *lexer) stateFn {
@@ -257,11 +289,11 @@ func readSpace(l *lexer) stateFn {
 }
 
 func readTwelveHour(l *lexer) stateFn {
-	_ = l.read()
+	l.read()
 	r := l.read()
 	if r != 'm' {
 		return l.errorf("expected twelve hour am/pm marker")
 	}
 	l.emit(tokenTwelveHour)
-	return readSpace
+	return readNext
 }

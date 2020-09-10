@@ -11,6 +11,7 @@ type parser struct {
 	pos    int
 	tokens []token
 	exprs  []Expression
+	join   bool
 }
 
 // Parse parses the provided string into an Expression.
@@ -35,55 +36,37 @@ func Parse(s string, loc *time.Location) (Expression, error) {
 	return Intersect(p.exprs...), nil
 }
 
-func (p *parser) parseExpr() error {
-	t := p.next()
-	if t.typ == tokenEOF && len(p.exprs) == 0 {
-		return newParseError(t, "expected expression")
+func (p *parser) add(expr Expression) error {
+	if p.join {
+		exprs := make([]Expression, 0)
+		u, ok := p.exprs[len(p.exprs)-1].(unionExpr)
+		if ok {
+			for _, e := range u {
+				exprs = append(exprs, e)
+			}
+			exprs = append(exprs, expr)
+		} else {
+			exprs = append(exprs, p.exprs[len(p.exprs)-1], expr)
+		}
+		p.exprs[len(p.exprs)-1] = Union(exprs...)
+		p.join = false
+	} else {
+		p.exprs = append(p.exprs, expr)
 	}
-	switch t.typ {
-	case tokenEOF:
-		return nil
-	case tokenAt:
-		return p.parseAt()
-	case tokenDaily:
-		return p.parseDaily()
-	case tokenDigit:
-		return p.parseTime(t)
-	case tokenEvery:
-		return p.parseEvery()
-	case tokenHourly:
-		return p.parseHourly()
-	case tokenMonth:
-		return p.parseMonth(t)
-	case tokenMonthly:
-		return p.parseMonthly()
-	case tokenNoon:
-		return p.parseNoon()
-	case tokenWeekly:
-		return p.parseWeekly()
-	case tokenWeekday:
-		return p.parseWeekday(t)
-	case tokenYearly:
-		return p.parseYearly()
-	}
-	return newParseError(t, "unexpected expression")
+	return p.parseExpr()
 }
 
 func (p *parser) parseAt() error {
 	t := p.next()
 	switch t.typ {
-	case tokenEOF:
-		return newParseError(t, "expected time or time constant")
 	case tokenDaily:
 		return p.parseMidnight(t)
 	case tokenDigit:
 		return p.parseTime(t)
 	case tokenNoon:
-		expr := Hour(12)
-		p.exprs = append(p.exprs, expr)
-		return nil
+		return p.parseNoon()
 	}
-	return newParseError(t, "unexpected token")
+	return newParseError(t, "expected time or time constant")
 }
 
 func (p *parser) parseDaily() error {
@@ -94,6 +77,26 @@ func (p *parser) parseDaily() error {
 		return nil
 	case tokenAt:
 		return p.parseAt()
+	}
+	return newParseError(t, "unexpected token")
+}
+
+func (p *parser) parseDigit(d token) error {
+	t := p.next()
+	switch t.typ {
+	case tokenColon:
+		m := p.next()
+		return p.parseTwentyFourHour(d, m)
+	case tokenOrdinal:
+		return p.parseOrdinal(d)
+	case tokenTwelveHour:
+		return p.parseTwelveHour(d, t)
+	case tokenUnitHour:
+		return p.parseUnitHour(d)
+	case tokenUnitMinute:
+		return p.parseUnitMinute(d)
+	case tokenUnitSecond:
+		return p.parseUnitSecond(d)
 	}
 	return newParseError(t, "unexpected token")
 }
@@ -121,19 +124,47 @@ func (p *parser) parseEvery() error {
 	return newParseError(t, "unexpected token")
 }
 
-func (p *parser) parseDigit(d token) error {
+func (p *parser) parseExpr() error {
 	t := p.next()
 	switch t.typ {
-	case tokenOrdinal:
-		return p.parseOrdinal(d)
-	case tokenUnitHour:
-		return p.parseUnitHour(d)
-	case tokenUnitMinute:
-		return p.parseUnitMinute(d)
-	case tokenUnitSecond:
-		return p.parseUnitSecond(d)
+	case tokenEOF:
+		switch {
+		case p.join:
+			return newParseError(t, "incomplete expression")
+		case len(p.exprs) == 0:
+			return newParseError(t, "empty expression")
+		default:
+			return nil
+		}
+	case tokenAnd:
+		p.join = true
+		return p.parseExpr()
+	case tokenAt:
+		return p.parseAt()
+	case tokenDaily:
+		return p.parseDaily()
+	case tokenDigit:
+		return p.parseDigit(t)
+	case tokenEvery:
+		return p.parseEvery()
+	case tokenHourly:
+		return p.parseHourly()
+	case tokenMonth:
+		return p.parseMonth(t)
+	case tokenMonthly:
+		return p.parseMonthly()
+	case tokenNoon:
+		return p.parseNoon()
+	case tokenOn:
+		return p.parseOn()
+	case tokenWeekly:
+		return p.parseWeekly()
+	case tokenWeekday:
+		return p.parseWeekday(t)
+	case tokenYearly:
+		return p.parseYearly()
 	}
-	return newParseError(t, "unexpected token")
+	return newParseError(t, "unexpected expression")
 }
 
 func (p *parser) parseHourly() error {
@@ -151,8 +182,7 @@ func (p *parser) parseMidnight(t token) error {
 		return newParseError(t, "expected at midnight")
 	}
 	expr := Hour(0)
-	p.exprs = append(p.exprs, expr)
-	return nil
+	return p.add(expr)
 }
 
 func (p *parser) parseMonth(t token) error {
@@ -186,8 +216,7 @@ func (p *parser) parseMonth(t token) error {
 		return newParseError(t, "invalid month")
 	}
 	expr := Month(m)
-	p.exprs = append(p.exprs, expr)
-	return nil
+	return p.add(expr)
 }
 
 func (p *parser) parseMonthly() error {
@@ -201,13 +230,8 @@ func (p *parser) parseMonthly() error {
 }
 
 func (p *parser) parseNoon() error {
-	t := p.next()
-	switch t.typ {
-	case tokenEOF:
-		p.exprs = append(p.exprs, Hour(12))
-		return nil
-	}
-	return newParseError(t, "unexpected token")
+	expr := Hour(12)
+	return p.add(expr)
 }
 
 func (p *parser) parseOn() error {
@@ -226,8 +250,8 @@ func (p *parser) parseOrdinal(d token) error {
 	if err != nil {
 		return err
 	}
-	p.exprs = append(p.exprs, Day(n))
-	return nil
+	expr := Day(n)
+	return p.add(expr)
 }
 
 func (p *parser) parseTime(h token) error {
@@ -259,8 +283,7 @@ func (p *parser) parseTwentyFourHour(h, m token) error {
 	if min != 0 {
 		expr = Intersect(expr, Minute(min))
 	}
-	p.exprs = append(p.exprs, expr)
-	return nil
+	return p.add(expr)
 }
 
 func (p *parser) parseTwentyFourHourWithSeconds(h, m token) error {
@@ -281,8 +304,7 @@ func (p *parser) parseTwentyFourHourWithSeconds(h, m token) error {
 	if len(exprs) > 1 {
 		expr = Intersect(exprs...)
 	}
-	p.exprs = append(p.exprs, expr)
-	return nil
+	return p.add(expr)
 }
 
 func (p *parser) parseTwelveHour(h, ampm token) error {
@@ -292,8 +314,7 @@ func (p *parser) parseTwelveHour(h, ampm token) error {
 	}
 	hour := t.Hour()
 	expr := Hour(hour)
-	p.exprs = append(p.exprs, expr)
-	return nil
+	return p.add(expr)
 }
 
 func (p *parser) parseUnitHour(d token) error {
@@ -302,8 +323,7 @@ func (p *parser) parseUnitHour(d token) error {
 		return err
 	}
 	expr := Hourly(hour)
-	p.exprs = append(p.exprs, expr)
-	return nil
+	return p.add(expr)
 }
 
 func (p *parser) parseUnitMinute(d token) error {
@@ -312,8 +332,7 @@ func (p *parser) parseUnitMinute(d token) error {
 		return err
 	}
 	expr := Minutely(min)
-	p.exprs = append(p.exprs, expr)
-	return nil
+	return p.add(expr)
 }
 
 func (p *parser) parseUnitSecond(d token) error {
@@ -322,8 +341,7 @@ func (p *parser) parseUnitSecond(d token) error {
 		return err
 	}
 	expr := Secondly(sec)
-	p.exprs = append(p.exprs, expr)
-	return nil
+	return p.add(expr)
 }
 
 func (p *parser) parseWeekday(t token) error {
@@ -347,8 +365,7 @@ func (p *parser) parseWeekday(t token) error {
 		return newParseError(t, "invalid weekday")
 	}
 	expr := Weekday(d)
-	p.exprs = append(p.exprs, expr)
-	return nil
+	return p.add(expr)
 }
 
 func (p *parser) parseWeekly() error {
@@ -364,13 +381,8 @@ func (p *parser) parseWeekly() error {
 }
 
 func (p *parser) parseYearly() error {
-	t := p.next()
-	switch t.typ {
-	case tokenEOF:
-		p.exprs = append(p.exprs, Month(time.January))
-		return nil
-	}
-	return newParseError(t, "unexpected token")
+	expr := Month(time.January)
+	return p.add(expr)
 }
 
 func (p *parser) peek() token {

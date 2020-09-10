@@ -146,6 +146,25 @@ func TestLexer(t *testing.T) {
 			},
 		},
 		{
+			"Tue/Thu",
+			[]token{
+				{tokenWeekday, "tue"},
+				{tokenAnd, "/"},
+				{tokenWeekday, "thu"},
+			},
+		},
+		{
+			"Tue, Wed, and Thu",
+			[]token{
+				{tokenWeekday, "tue"},
+				{tokenAnd, ","},
+				{tokenWeekday, "wed"},
+				{tokenAnd, ","},
+				{tokenAnd, "and"},
+				{tokenWeekday, "thu"},
+			},
+		},
+		{
 			"every last day of the month at",
 			[]token{
 				{tokenEvery, "every"},
@@ -165,6 +184,20 @@ func TestLexer(t *testing.T) {
 		}
 		if !reflect.DeepEqual(have, tt.want) {
 			t.Errorf("lex(%q)\nhave %v\nwant %v", tt.in, have, tt.want)
+		}
+	}
+}
+
+func TestLexerError(t *testing.T) {
+	var tests = []string{
+		"TueThu",
+		"1st2nd",
+		"4am3pm",
+	}
+	for _, tt := range tests {
+		have, err := lex(tt)
+		if err == nil {
+			t.Errorf("lex(%q)\nhave %v\nwant lex error", tt, have)
 		}
 	}
 }

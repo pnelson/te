@@ -74,7 +74,7 @@ for i := 0; i < 4; i++ {
 Limited expression parsing is supported:
 
 ```go
-expr, err := te.Parse("4am")
+expr, err := te.Parse("Tue/Thu at 4am", time.Local)
 if err != nil {
   log.Fatal(err)
 }
@@ -84,9 +84,9 @@ for i := 0; i < 4; i++ {
   fmt.Println(next)
 }
 // 2020-09-01 04:00:00 -0400 EDT
-// 2020-09-02 04:00:00 -0400 EDT
 // 2020-09-03 04:00:00 -0400 EDT
-// 2020-09-04 04:00:00 -0400 EDT
+// 2020-09-08 04:00:00 -0400 EDT
+// 2020-09-10 04:00:00 -0400 EDT
 ```
 
 See `parser_test.go` for more examples.
