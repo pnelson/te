@@ -54,6 +54,9 @@ func TestParse(t *testing.T) {
 		{"hourly", Minute(0)},
 		{"every hour", Minute(0)},
 
+		{"every minute", Second(0)},
+		{"every second", Secondly(1)},
+
 		{"every 2 hours", Hourly(2)},
 		{"every 15 minutes", Minutely(15)},
 		{"every 30 seconds", Secondly(30)},

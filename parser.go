@@ -108,6 +108,10 @@ func (p *parser) parseEvery() error {
 		return p.parseDigit(t)
 	case tokenMonth:
 		return p.parseMonth(t)
+	case tokenUnitSecond:
+		return p.parseSecondly()
+	case tokenUnitMinute:
+		return p.parseMinutely()
 	case tokenUnitHour:
 		return p.parseHourly()
 	case tokenUnitDay:
@@ -185,6 +189,16 @@ func (p *parser) parseMidnight(t token) error {
 	return p.add(expr)
 }
 
+func (p *parser) parseMinutely() error {
+	t := p.next()
+	switch t.typ {
+	case tokenEOF:
+		p.exprs = append(p.exprs, Second(0))
+		return nil
+	}
+	return newParseError(t, "unexpected token")
+}
+
 func (p *parser) parseMonth(t token) error {
 	var m time.Month
 	switch t.val[:3] {
@@ -252,6 +266,16 @@ func (p *parser) parseOrdinal(d token) error {
 	}
 	expr := Day(n)
 	return p.add(expr)
+}
+
+func (p *parser) parseSecondly() error {
+	t := p.next()
+	switch t.typ {
+	case tokenEOF:
+		p.exprs = append(p.exprs, Secondly(1))
+		return nil
+	}
+	return newParseError(t, "unexpected token")
 }
 
 func (p *parser) parseTime(h token) error {
