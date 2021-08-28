@@ -29,7 +29,7 @@ func (expr hourExpr) Next(t time.Time) time.Time {
 	return next
 }
 
-func (expr hourExpr) String() string {
+func (expr hourExpr) GoString() string {
 	return fmt.Sprintf("te.Hour(%d)", int(expr))
 }
 
@@ -53,7 +53,7 @@ func (expr hourlyExpr) Next(t time.Time) time.Time {
 	return next
 }
 
-func (expr hourlyExpr) String() string {
+func (expr hourlyExpr) GoString() string {
 	return fmt.Sprintf("te.Hourly(%d)", expr.n)
 }
 
@@ -74,7 +74,7 @@ func (expr minuteExpr) Next(t time.Time) time.Time {
 	return next
 }
 
-func (expr minuteExpr) String() string {
+func (expr minuteExpr) GoString() string {
 	return fmt.Sprintf("te.Minute(%d)", int(expr))
 }
 
@@ -98,7 +98,7 @@ func (expr minutelyExpr) Next(t time.Time) time.Time {
 	return next
 }
 
-func (expr minutelyExpr) String() string {
+func (expr minutelyExpr) GoString() string {
 	return fmt.Sprintf("te.Minutely(%d)", expr.n)
 }
 
@@ -119,7 +119,7 @@ func (expr secondExpr) Next(t time.Time) time.Time {
 	return next
 }
 
-func (expr secondExpr) String() string {
+func (expr secondExpr) GoString() string {
 	return fmt.Sprintf("te.Second(%d)", int(expr))
 }
 
@@ -143,7 +143,7 @@ func (expr secondlyExpr) Next(t time.Time) time.Time {
 	return next
 }
 
-func (expr secondlyExpr) String() string {
+func (expr secondlyExpr) GoString() string {
 	return fmt.Sprintf("te.Secondly(%d)", expr.n)
 }
 
@@ -170,7 +170,7 @@ func (expr dayExpr) Next(t time.Time) time.Time {
 	return next
 }
 
-func (expr dayExpr) String() string {
+func (expr dayExpr) GoString() string {
 	return fmt.Sprintf("te.Day(%d)", int(expr))
 }
 
@@ -191,7 +191,7 @@ func (expr weekdayExpr) Next(t time.Time) time.Time {
 	return next.AddDate(0, 0, days)
 }
 
-func (expr weekdayExpr) String() string {
+func (expr weekdayExpr) GoString() string {
 	return fmt.Sprintf("te.Weekday(time.%s)", time.Weekday(expr))
 }
 
@@ -210,7 +210,7 @@ func (expr monthExpr) Next(t time.Time) time.Time {
 	return next
 }
 
-func (expr monthExpr) String() string {
+func (expr monthExpr) GoString() string {
 	return fmt.Sprintf("te.Month(time.%s)", time.Month(expr))
 }
 
@@ -224,7 +224,7 @@ func (expr yearExpr) Next(t time.Time) time.Time {
 	return time.Time{}
 }
 
-func (expr yearExpr) String() string {
+func (expr yearExpr) GoString() string {
 	return fmt.Sprintf("te.Year(%d)", int(expr))
 }
 
@@ -247,7 +247,7 @@ func (expr dateRangeExpr) Next(t time.Time) time.Time {
 	return next
 }
 
-func (expr dateRangeExpr) String() string {
+func (expr dateRangeExpr) GoString() string {
 	return fmt.Sprintf("te.DateRange(time.%s, %d, time.%s, %d)",
 		expr.t1.Month(), expr.t1.Day(),
 		expr.t2.Month(), expr.t2.Day())
@@ -272,7 +272,7 @@ func (expr timeRangeExpr) Next(t time.Time) time.Time {
 	return next
 }
 
-func (expr timeRangeExpr) String() string {
+func (expr timeRangeExpr) GoString() string {
 	return fmt.Sprintf("te.TimeRange(%d, %d, %d, %d, %d, %d)",
 		expr.t1.Hour(), expr.t1.Minute(), expr.t1.Second(),
 		expr.t2.Hour(), expr.t2.Minute(), expr.t2.Second())
@@ -298,7 +298,7 @@ func (expr unionExpr) Next(t time.Time) time.Time {
 	return ts[0]
 }
 
-func (expr unionExpr) String() string {
+func (expr unionExpr) GoString() string {
 	return formatExpr("Union", expr)
 }
 
@@ -333,7 +333,7 @@ func (expr intersectExpr) Next(t time.Time) time.Time {
 	return expr.Next(t)
 }
 
-func (expr intersectExpr) String() string {
+func (expr intersectExpr) GoString() string {
 	return formatExpr("Intersect", expr)
 }
 
@@ -357,7 +357,7 @@ func (expr exceptExpr) Next(t time.Time) time.Time {
 	return ts[0]
 }
 
-func (expr exceptExpr) String() string {
+func (expr exceptExpr) GoString() string {
 	return formatExpr("Except", expr)
 }
 
@@ -395,7 +395,7 @@ func formatExpr(kind string, expr []Expression) string {
 	s.WriteString(kind)
 	s.WriteString("(")
 	for i, e := range expr {
-		s.WriteString(fmt.Sprintf("%s", e))
+		s.WriteString(fmt.Sprintf("%#v", e))
 		if i != len(expr)-1 {
 			s.WriteString(", ")
 		}

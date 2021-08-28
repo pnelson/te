@@ -814,7 +814,7 @@ func TestUntil(t *testing.T) {
 	}
 }
 
-func TestString(t *testing.T) {
+func TestGoString(t *testing.T) {
 	tests := map[string]struct {
 		expr Expression
 		want string
@@ -881,12 +881,12 @@ func TestString(t *testing.T) {
 		},
 	}
 	for name, tt := range tests {
-		e, ok := tt.expr.(fmt.Stringer)
+		e, ok := tt.expr.(fmt.GoStringer)
 		if !ok {
 			t.Errorf("%s should be a fmt.Stringer", name)
 			continue
 		}
-		have := e.String()
+		have := e.GoString()
 		if have != tt.want {
 			t.Errorf("%s\nhave %s\nwant %s", name, have, tt.want)
 		}
