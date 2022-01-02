@@ -405,8 +405,19 @@ func (p *parser) parseWeekly() error {
 }
 
 func (p *parser) parseYearly() error {
-	expr := Month(time.January)
-	return p.add(expr)
+	expr := Intersect(Month(time.January), Day(1))
+	err := p.add(expr)
+	if err != nil {
+		return err
+	}
+	t := p.next()
+	switch t.typ {
+	case tokenEOF:
+		return nil
+	case tokenAt:
+		return p.parseAt()
+	}
+	return newParseError(t, "unexpected token")
 }
 
 func (p *parser) peek() token {
