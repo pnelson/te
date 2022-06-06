@@ -14,14 +14,12 @@ type lexer struct {
 	input  string
 	i, j   int // position within input
 	width  int // width of last rune
-	state  stateFn
 	tokens []token
 }
 
 func lex(s string) ([]token, error) {
 	l := &lexer{
 		input:  strings.ToLower(s),
-		state:  readExpr,
 		tokens: make([]token, 0),
 	}
 	for state := readExpr; state != nil; {
