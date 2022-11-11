@@ -59,7 +59,7 @@ func (p *parser) add(expr Expression) error {
 func (p *parser) parseAt() error {
 	t := p.next()
 	switch t.typ {
-	case tokenDaily:
+	case tokenMidnight:
 		return p.parseMidnight(t)
 	case tokenDigit:
 		return p.parseTime(t)
@@ -73,7 +73,7 @@ func (p *parser) parseDaily() error {
 	t := p.next()
 	switch t.typ {
 	case tokenEOF:
-		p.exprs = append(p.exprs, Hour(0))
+		p.exprs = append(p.exprs, Daily())
 		return nil
 	case tokenAt:
 		return p.parseAt()
@@ -153,6 +153,8 @@ func (p *parser) parseExpr() error {
 		return p.parseEvery()
 	case tokenHourly:
 		return p.parseHourly()
+	case tokenMidnight:
+		return p.parseMidnight(t)
 	case tokenMonth:
 		return p.parseMonth(t)
 	case tokenMonthly:

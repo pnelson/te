@@ -174,6 +174,21 @@ func (expr dayExpr) GoString() string {
 	return fmt.Sprintf("te.Day(%d)", int(expr))
 }
 
+type dailyExpr struct{}
+
+func (expr dailyExpr) IsActive(t time.Time) bool {
+	return true
+}
+
+func (expr dailyExpr) Next(t time.Time) time.Time {
+	loc := t.Location()
+	return time.Date(t.Year(), t.Month(), t.Day()+1, 0, 0, 0, 0, loc)
+}
+
+func (expr dailyExpr) GoString() string {
+	return "te.Daily()"
+}
+
 type weekdayExpr time.Weekday
 
 func (expr weekdayExpr) IsActive(t time.Time) bool {

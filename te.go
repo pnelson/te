@@ -74,6 +74,11 @@ func Day(n int) Expression {
 	return dayExpr(n)
 }
 
+// Daily returns a temporal expression for daily intervals.
+func Daily() Expression {
+	return dailyExpr{}
+}
+
 // Weekday returns a temporal expression for weekdays.
 func Weekday(d time.Weekday) Expression {
 	return weekdayExpr(d)

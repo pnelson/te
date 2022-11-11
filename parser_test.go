@@ -11,7 +11,7 @@ func TestParse(t *testing.T) {
 		in   string
 		want Expression
 	}{
-		{"daily", Hour(0)},
+		{"daily", Daily()},
 		{"midnight", Hour(0)},
 		{"noon", Hour(12)},
 
@@ -29,7 +29,7 @@ func TestParse(t *testing.T) {
 		{"daily at noon", Hour(12)},
 		{"daily at 3pm", Hour(15)},
 
-		{"every day", Hour(0)},
+		{"every day", Daily()},
 		{"every day at 3pm", Hour(15)},
 
 		{"weekly", Weekday(time.Sunday)},

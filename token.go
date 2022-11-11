@@ -16,6 +16,7 @@ const (
 	tokenHourly
 	tokenIn
 	tokenLast
+	tokenMidnight
 	tokenNoon
 	tokenOf
 	tokenOn

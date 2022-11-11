@@ -27,7 +27,7 @@ func TestLexer(t *testing.T) {
 		{
 			"midnight",
 			[]token{
-				{tokenDaily, "midnight"},
+				{tokenMidnight, "midnight"},
 			},
 		},
 		{

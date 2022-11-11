@@ -152,8 +152,10 @@ func readLetter(l *lexer) stateFn {
 	l.readFn(unicode.IsLetter)
 	val := l.value()
 	switch val {
-	case "daily", "midnight":
+	case "daily":
 		l.emit(tokenDaily)
+	case "midnight":
+		l.emit(tokenMidnight)
 	case "noon":
 		l.emit(tokenNoon)
 	case "hourly":
