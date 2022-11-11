@@ -97,7 +97,7 @@ func TestParse(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Parse(%q) %v", tt.in, err)
 		} else if !reflect.DeepEqual(have, tt.want) {
-			t.Errorf("Parse(%q)\nhave %v\nwant %v", tt.in, have, tt.want)
+			t.Errorf("Parse(%q)\nhave %#v\nwant %#v", tt.in, have, tt.want)
 		}
 	}
 }

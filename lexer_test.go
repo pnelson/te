@@ -183,7 +183,7 @@ func TestLexer(t *testing.T) {
 			t.Fatalf("lex(%q) %v", tt.in, err)
 		}
 		if !reflect.DeepEqual(have, tt.want) {
-			t.Errorf("lex(%q)\nhave %v\nwant %v", tt.in, have, tt.want)
+			t.Errorf("lex(%q)\nhave %#v\nwant %#v", tt.in, have, tt.want)
 		}
 	}
 }
