@@ -55,6 +55,12 @@ func TestLexer(t *testing.T) {
 			},
 		},
 		{
+			"quarterly",
+			[]token{
+				{tokenQuarterly, "quarterly"},
+			},
+		},
+		{
 			"yearly",
 			[]token{
 				{tokenYearly, "yearly"},

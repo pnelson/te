@@ -45,6 +45,8 @@ func TestParse(t *testing.T) {
 		{"every 4th", Day(4)},
 		{"4th", Day(4)},
 
+		{"quarterly", Intersect(Union(Month(time.January), Month(time.April), Month(time.July), Month(time.October)), Day(1))},
+
 		{"yearly", Intersect(Month(time.January), Day(1))},
 		{"annually", Intersect(Month(time.January), Day(1))},
 		{"annually at 4am", Intersect(Intersect(Month(time.January), Day(1)), Hour(4))},

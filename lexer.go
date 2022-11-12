@@ -164,6 +164,8 @@ func readLetter(l *lexer) stateFn {
 		l.emit(tokenWeekly)
 	case "monthly":
 		l.emit(tokenMonthly)
+	case "quarterly":
+		l.emit(tokenQuarterly)
 	case "yearly", "annually":
 		l.emit(tokenYearly)
 	case "sun", "sunday":

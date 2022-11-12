@@ -27,6 +27,7 @@ const (
 	tokenWeekly
 	tokenMonth
 	tokenMonthly
+	tokenQuarterly
 	tokenUnitDay
 	tokenUnitHour
 	tokenUnitMinute

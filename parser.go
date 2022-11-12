@@ -163,6 +163,8 @@ func (p *parser) parseExpr() error {
 		return p.parseNoon()
 	case tokenOn:
 		return p.parseOn()
+	case tokenQuarterly:
+		return p.parseQuarterly()
 	case tokenWeekly:
 		return p.parseWeekly()
 	case tokenWeekday:
@@ -268,6 +270,25 @@ func (p *parser) parseOrdinal(d token) error {
 	}
 	expr := Day(n)
 	return p.add(expr)
+}
+
+func (p *parser) parseQuarterly() error {
+	t := p.next()
+	switch t.typ {
+	case tokenEOF:
+		expr := Intersect(
+			Union(
+				Month(time.January),
+				Month(time.April),
+				Month(time.July),
+				Month(time.October),
+			),
+			Day(1),
+		)
+		p.exprs = append(p.exprs, expr)
+		return nil
+	}
+	return newParseError(t, "unexpected token")
 }
 
 func (p *parser) parseSecondly() error {
